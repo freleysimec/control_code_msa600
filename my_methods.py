@@ -1,30 +1,6 @@
-import keyboard as keyboard
 import my_setup as mySetup
 import my_excel_handler as myExcelHandler
 
-
-def save_coordinates_of_die_home_point(dieIndex, filename):
-    myVerifiedWaferMap = myExcelHandler.VerifiedWaferMap(filename)
-
-    while True:
-        try:
-            if keyboard.is_pressed('t'):
-                print('saving coordinates')
-                chuckCoordinates = mySetup.myPav.get_chuck_coordinates()
-                x = float(chuckCoordinates[0])
-                y = float(chuckCoordinates[1])
-                #save coordinates
-                print('index: ' +str(dieIndex))
-                myVerifiedWaferMap.save_die_coordinates(index= dieIndex, coordinates=[x,y])
-                break
-            elif keyboard.is_pressed('i'):
-                print('ignored die')
-                #save coordinates
-                print('index: ' +str(dieIndex))
-                myVerifiedWaferMap.save_die_coordinates(index= dieIndex, coordinates=["IGNORED","IGNORED"])
-                break
-        except:
-            break
 
 def save_coordinates_and_msa600_elevation_semi_auto(dieIndex, myVerifiedWaferMap: myExcelHandler.VerifiedWaferMap):
     textInput = input("Enter 't' if Coordinates and Focus are OK or 'i' to ignore the die: ")
