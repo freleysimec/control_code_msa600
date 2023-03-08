@@ -4,8 +4,6 @@ import my_setup as mySetup
 from post_processing.svd_class import*
 
 
-
-
 #communicationDirectory = "C:\\Users\\leys40\\OneDrive - imec\\SOFTWARE\\msa600_communication\\communication_directory"
 resultFrequencyFilename = 'frequencyD'
 resultAmplitudeFilename = 'amplitudeD'
@@ -72,15 +70,3 @@ def main():
         
 if __name__ == "__main__":
     main()
-    
-    
-
-#request.append("exportascii,Time,Ref1,Voltage,Samples," + resultsFolder + resultFilename)
-
-#TODO: mySetup as class
-#TODO: simplify my AWG (handler stuff)
-#TODO: check voltage AWG vs impedance
-#TODO: implement Sine
-
-#TODO: implement averaging
-#TODO: implement multiple scan points

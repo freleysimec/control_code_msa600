@@ -56,14 +56,14 @@ def main():
             dieCoordinates = myVerifiedWaferMap.get_coordinates_of_die(dieIndex)
             verifiedElevation = myVerifiedWaferMap.get_verified_msa600_elevation_at_die(dieIndex)
             
-            if (not dieCoordinates[0] == "IGNORED"):
+            if not dieCoordinates[0] == "IGNORED":
                 
                 #get structure coordinates
                 try:
                     structureIndex = measurement["structure index"]                    
                     structureCoordinatesRelativeToDie = myUserInput.get_structure_coordinates_relative_to_die_home(structureIndex)
                 except:
-                    print("no structure index found: measuring and die home coordinates")
+                    print("no structure index found")
                     structureCoordinatesRelativeToDie = [0,0]
                 
                 xStructureRelativeToCenter = dieCoordinates[0] + mySetup.myPav.xCenter + structureCoordinatesRelativeToDie[0]
@@ -77,7 +77,8 @@ def main():
                 if inRange and inDiameter:
 
                     experimentName = myUserInput.get_experiment_filename(measurementIndex)
-                    fileNameSVD = experimentName + "_resonanceFrequency.svd"
+                    fileNameResonanceFrequencySVD = experimentName + "_resonanceFrequency.svd"
+                    fileNameResonanceAmplitudeSVD = experimentName + "_amplitude.svd"
                 
                     # Move chuck to sum of die AND structure coordinates (opgelet, verified wafer is chuck coordinates en structure coordinates tegengestelde assen)
                     mySetup.myPav.move_chuck_relative_to_home( -xStructureRelativeToHome, -yStructureRelativeToHome)
@@ -99,12 +100,12 @@ def main():
                     mySetup.myAwgExt.set_sweep_settings(startFrequency=1000, stopFrequency=25000000, sweepTime=0.028, voltage= 1)
 
                     # START SCAN AND SAVE RESULTS
-                    resultspath = os.path.join(resultsDirectory, fileNameSVD)
+                    resultspath = os.path.join(resultsDirectory, fileNameResonanceFrequencySVD)
                     requests = ["SCAN_AND_SAVE," + str(resultspath)]
                     mySetup.myMsa600.send_scan_request_and_trigger_awg(requests, myAwgExt= mySetup.myAwgExt, timeLimitForResponse= 20, averaging = averaging, triggerOpenTime=1)
 
                     # DETERMINE THE RESONANCE FREQUENCY FROM THE MEASUREMENT DATA
-                    mySVD = Svd(resultsDirectory = resultsDirectory,  filename = fileNameSVD)
+                    mySVD = Svd(resultsDirectory = resultsDirectory,  filename = fileNameResonanceFrequencySVD)
                     resonananceFrequency = mySVD.get_resonance_frequency(point=1,fMin=1000000, fMax=24000000)
                     print("resonananceFrequency: " + str(resonananceFrequency))
                     
@@ -112,10 +113,29 @@ def main():
                     settingsPath = os.path.join(settingsDirectory, settingsFileAmplitude)
                     requests = ["CHANGE_SETTINGS," + str(settingsPath)]
                     mySetup.myMsa600.send_requests(requests, timeLimitForResponse= 20)
+
+                    # SELECT THE SETTINGS FOR THE VOLTAGE ACTUATION
+                    mySetup.myAwgExt.set_sine_settings(peakToPeakAmplitude= 3,  frequency=resonananceFrequency)
+                    
+                    # START SCAN AND SAVE RESULTS
+                    resultspath = os.path.join(resultsDirectory, fileNameResonanceAmplitudeSVD)
+                    requests = ["SCAN_AND_SAVE," + str(resultspath)]
+                    mySetup.myMsa600.send_scan_request_and_trigger_awg(requests,  myAwgExt= mySetup.myAwgExt, timeLimitForResponse= 20)
+
+                    # DETERMINE THE DISPLACEMENT AMPLITUDE FROM THE MEASUREMENT DATA
+                    mySVD = Svd(resultsDirectory = resultsDirectory,  filename = fileNameResonanceAmplitudeSVD)
+                    displacementAmplitude = mySVD.get_displacement_amplitude(point=1)
+
+                    # DETERMINE THE ACTUATION AMPLITUDE FROM THE MEASUREMENT DATA
+                    actuationAmplitude = mySVD.get_actuation_amplitude(point=1)
+                    relativeDisplacementAmplitude = displacementAmplitude/actuationAmplitude
                     
                     ## SAVE performed measurement in "measurements done file" (links measurement number with MSA600 file number)
+                    # save images as link
                     measurementData = {
                         "RF": resonananceFrequency,
+                        "V": actuationAmplitude,
+                        "D/V": relativeDisplacementAmplitude,
                     }
                     
                     myPerformedMeasurements.save_measurement_datas(measurementIndex, measurementData, name=experimentName)
@@ -139,23 +159,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-#TODO: email polytec with error en question set settings
-#TODO: remaining time estimate
-#TODO: get settingsfile from userInput
-#TODO: implement multiple scan points: scan points in excell file
-
-#TODO: tutorial code sharing
-#TODO: computer vision
-
-#TODO: get awg inputs from userInput
-#TODO: get all data from msa-settings info file
-#TODO: improve averaging: from settings file
-#TODO: more natural Wafermap input (1-23 in excel)
-
-#TODO: mySetup as class
-#TODO: simplify code: one rule for "FOR ALL MEASUREMENTS" for loop
-#TODO: rename excel file tabs
-#TODO: Fré Quality factor for RF
-#TODO: select measurements based on measurement index
