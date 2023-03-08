@@ -85,6 +85,15 @@ def main():
                     # Move MSA-600 to focus height
                     mySetup.myPav.move_probe_z(verifiedElevation) 
 
+                    # MOVE SCOPE TO EXACT POSITION
+                    # take current coordinates of scope
+                    probeCoordinates = mySetup.myPav.get_probe_coordinates_relative_to_home()
+                    print("probeCoordinates: " + str(probeCoordinates))
+                    # take fast svg 
+                    # get position image from scope
+                    # get translation values
+                    # move scope to new position
+
                     # PERFORM MEASUREMENT 
                     print("x postion: " + str(dieCoordinates[0]))
                     print("y postion: " + str(dieCoordinates[1]))
@@ -107,11 +116,6 @@ def main():
                     mySVD = Svd(resultsDirectory = resultsDirectory,  filename = fileNameSVD)
                     resonananceFrequency = mySVD.get_resonance_frequency(point=1,fMin=1000000, fMax=24000000)
                     print("resonananceFrequency: " + str(resonananceFrequency))
-                    
-                    # SELECT THE MSA-600 SETTINGS
-                    settingsPath = os.path.join(settingsDirectory, settingsFileAmplitude)
-                    requests = ["CHANGE_SETTINGS," + str(settingsPath)]
-                    mySetup.myMsa600.send_requests(requests, timeLimitForResponse= 20)
                     
                     ## SAVE performed measurement in "measurements done file" (links measurement number with MSA600 file number)
                     measurementData = {

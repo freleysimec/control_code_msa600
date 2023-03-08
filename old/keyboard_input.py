@@ -10,7 +10,7 @@ def save_coordinates_of_die_home_point_and_msa600_elevation(dieIndex, myVerified
             if keyboard.is_pressed('t'):
                 print('saving coordinates & focus elevation')
                 chuckCoordinates = mySetup.myPav.get_chuck_coordinates()
-                probeCoordinates = mySetup.myPav.get_probe_coordinates()  #MSA Attached to "Probe station"
+                probeCoordinates = mySetup.myPav.get_probe_coordinates_relative_to_home()  #MSA Attached to "Probe station"
                 x = float(chuckCoordinates[0])
                 y = float(chuckCoordinates[1])
                 msa600_elevation = float(probeCoordinates[3])           #MSA Attached to "Probe station"

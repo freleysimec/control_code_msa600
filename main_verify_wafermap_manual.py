@@ -33,8 +33,7 @@ def main():
     ## CAPTURE COORDINATES & FOCUS HEIGHT
     finished = False
     while finished == False:
-        dieName = input("Enter the name (index) for your the die you are taking the coordinates of and press enter: ")
-        finished = myMethods.save_coordinates_and_msa600_elevation_manual(dieIndex = dieName, myVerifiedWaferMap=myVerifiedWaferMap)
+        finished = myMethods.save_coordinates_and_msa600_elevation_manual( myVerifiedWaferMap=myVerifiedWaferMap)
         mySetup.myPav.move_chuck_separation()
 
     ## FINISH THE MEASUREMENTS    

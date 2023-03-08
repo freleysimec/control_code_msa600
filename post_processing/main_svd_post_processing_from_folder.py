@@ -1,4 +1,3 @@
-from pvd_class import*
 from svd_class import*
 from my_working_folder_class import*
 import time
@@ -16,7 +15,7 @@ pointsInSvd = 1
 projectDirectory = os.path.join(projectFolder)
 imagesDirectory = os.path.join(projectDirectory, "images")
 if not os.path.exists(imagesDirectory):
-        os.makedirs(imagesDirectory)
+    os.makedirs(imagesDirectory)
 def main():    
 
     ## FOR ALL SVD FILES IN FOLDER
