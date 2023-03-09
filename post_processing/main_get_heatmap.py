@@ -17,21 +17,20 @@ import my_excel_handler as myExcelHandler
 
 
 ### RAW DATA
-# projectLabel = "playground"
-# hardDisk = "D:"
-projectLabel = "pumba1_square"
-hardDisk = "C:\\"
+projectLabel = "pumba1_circle"
+projectFolder = r"D:\pumba1_circle"
 
 columnLabel = "RF"
 linkColumnLabel = "FFT"
 structureIndexes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
 colorbarLabel = "Resonance Frequency [MHz]"
+divider = 1000000
+roundedTo = 1
 
 
 #----------------------------------------------------
-dataDirectory = os.path.join(hardDisk)
-projectDirectory = os.path.join(dataDirectory, projectLabel)  # controlCodeDirectory + "\\" + projectLabel + "\\"
-resultsDirectory = os.path.join(projectDirectory, "results") #projectDirectory + "\\" + "results" + "\\"
+projectDirectory = os.path.join(projectFolder )
+resultsDirectory = os.path.join(projectDirectory, "results")
 
 myUserInput = myExcelHandler.UserInput(projectLabel=projectLabel, projectDirectory=projectDirectory)
 myMeasurementOutput = myExcelHandler.MeasurementOutput(projectLabel = projectLabel, projectDirectory=projectDirectory)
@@ -77,6 +76,7 @@ def main():
                 col_name_structure_index = myMeasurementsLinksDf.columns[myMeasurementsLinksDf.iloc[0].eq('structure index').idxmax()]
                 col_name_die_index = myMeasurementsLinksDf.columns[myMeasurementsLinksDf.iloc[0].eq('die index').idxmax()]
                 myMeasurementsDFLinks_filtered = myMeasurementsLinksDf[(myMeasurementsLinksDf[col_name_structure_index] == structureIndex) & (myMeasurementsLinksDf[col_name_die_index] == dieIndex)]   #TODO: adjust
+                
                 resonanceFrequency = myMeasurementsDf_filtered[columnLabel].iloc[0]
                 name = myMeasurementsDf_filtered["NAME"].iloc[0]
                 linkColumnLabelExcel = myMeasurementsLinksDf.columns[myMeasurementsLinksDf.iloc[0].eq(linkColumnLabel).idxmax()]
@@ -94,7 +94,7 @@ def main():
                 x_type = type(resonanceFrequency)
                 if isinstance(resonanceFrequency, x_type):
                     if (name != 'IGNORED' and name != 'IGNORED STRUCTURE'):
-                        resonanceFrequency = float(resonanceFrequency)
+                        resonanceFrequency = round(float(resonanceFrequency)/divider, roundedTo)
                         myResonanceArray[rowInDataMatrix, columnInDataMatrix] = resonanceFrequency
                         myLinkArray[rowInDataMatrix, columnInDataMatrix] = link
                 

@@ -13,15 +13,13 @@ import svd_methods as svdMethods
 
 ## CUSTOM 
 projectLabel = "pumba1_square"
-hardDisk = "C:"
+projectFolder = r"D:\pumba1_square"
 pointsInSvd = 1
 rfFileNameAddition = "_resonanceFrequency"
 ampFileNameAddition = "_amplitude"
 
 ## INITIALISE FILES
-# mainDirectory = os.getcwd()
-dataDirectory = os.path.join(hardDisk)
-projectDirectory = os.path.join(dataDirectory, projectLabel)
+projectDirectory = os.path.join(projectFolder)
 resultsDirectory = os.path.join(projectDirectory, "results")
 resultsDirectoryRelative = "results"
 
@@ -39,8 +37,6 @@ def main():
         if index != "abreviation" :
             performedMeasurementName = row['NAME'] 
             if performedMeasurementName != "IGNORED STRUCTURE" and performedMeasurementName != "IGNORED" :
-                print("performedMeasurementName")
-
                 
                 performedMeasurementNameFrequency = performedMeasurementName + rfFileNameAddition
                 performedMeasurementNameAmplitude = performedMeasurementName + ampFileNameAddition

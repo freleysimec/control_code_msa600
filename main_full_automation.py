@@ -51,6 +51,9 @@ def main():
         if not measurementIndex == "abreviation":    
             initialTime = time.time()
 
+            # GET SETTINGS FILE
+            settingsFile = myUserInput.get_settings_file(measurementIndex=measurementIndex)
+
             # MOVE CHUCK TO POI IF DIE NOT IGNORED
             dieIndex = measurement["die index"]
             dieCoordinates = myVerifiedWaferMap.get_coordinates_of_die(dieIndex)
@@ -63,7 +66,7 @@ def main():
                     structureIndex = measurement["structure index"]                    
                     structureCoordinatesRelativeToDie = myUserInput.get_structure_coordinates_relative_to_die_home(structureIndex)
                 except:
-                    print("no structure index found: measuring and die home coordinates")
+                    print("no structure index found: measuring at die home coordinates")
                     structureCoordinatesRelativeToDie = [0,0]
                 
                 xStructureRelativeToCenter = dieCoordinates[0] + mySetup.myPav.xCenter + structureCoordinatesRelativeToDie[0]
@@ -86,13 +89,7 @@ def main():
                     mySetup.myPav.move_probe_z(verifiedElevation) 
 
                     # MOVE SCOPE TO EXACT POSITION
-                    # take current coordinates of scope
-                    probeCoordinates = mySetup.myPav.get_probe_coordinates_relative_to_home()
-                    print("probeCoordinates: " + str(probeCoordinates))
-                    # take fast svg 
-                    # get position image from scope
-                    # get translation values
-                    # move scope to new position
+                    # mymethods...
 
                     # PERFORM MEASUREMENT 
                     print("x postion: " + str(dieCoordinates[0]))
@@ -100,7 +97,7 @@ def main():
                     mySetup.myPav.move_chuck_to_contact()
 
                     # SELECT THE MSA-600 SETTINGS
-                    settingsPath = os.path.join(settingsDirectory, settingsFileFrequency)
+                    settingsPath = os.path.join(settingsDirectory, settingsFile)
                     requests = ["CHANGE_SETTINGS," + str(settingsPath)]
                     mySetup.myMsa600.send_requests(requests, timeLimitForResponse= 20)
 
@@ -145,13 +142,13 @@ if __name__ == "__main__":
     main()
 
 
+#TODO: get settingsfile from userInput
 #TODO: email polytec with error en question set settings
 #TODO: remaining time estimate
-#TODO: get settingsfile from userInput
 #TODO: implement multiple scan points: scan points in excell file
 
 #TODO: tutorial code sharing
-#TODO: computer vision
+#TODO: computer vision: autofocus
 
 #TODO: get awg inputs from userInput
 #TODO: get all data from msa-settings info file

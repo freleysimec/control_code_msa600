@@ -54,6 +54,10 @@ class UserInput():
 
         return filename
 
+    def get_settings_file(self, measurementIndex):
+        settingsFile = self.plannedMeasurementsDf.at[measurementIndex, 'msa600 settings']
+        return settingsFile
+    
 class VerifiedWaferMap():
     def __init__(self, projectLabel, projectDirectory):
         verifiedWaferName = projectLabel +"_verified_wafer"
