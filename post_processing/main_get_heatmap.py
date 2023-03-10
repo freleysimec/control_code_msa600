@@ -17,15 +17,15 @@ import my_excel_handler as myExcelHandler
 
 
 ### RAW DATA
-projectLabel = "pumba1_circle"
-projectFolder = r"D:\pumba1_circle"
+projectLabel = "pumba1_rectangle"
+projectFolder = r"D:\pumba1_rectangle"
 
-columnLabel = "RF"
-linkColumnLabel = "FFT"
+columnLabel = "D_V"
+imageLinkColumnLabel = "FFT"
 structureIndexes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
-colorbarLabel = "Resonance Frequency [MHz]"
-divider = 1000000
-roundedTo = 1
+colorbarLabel = "Displacement [nM/V]"
+divider = 0.000000001
+roundedTo = 0
 
 
 #----------------------------------------------------
@@ -79,7 +79,7 @@ def main():
                 
                 resonanceFrequency = myMeasurementsDf_filtered[columnLabel].iloc[0]
                 name = myMeasurementsDf_filtered["NAME"].iloc[0]
-                linkColumnLabelExcel = myMeasurementsLinksDf.columns[myMeasurementsLinksDf.iloc[0].eq(linkColumnLabel).idxmax()]
+                linkColumnLabelExcel = myMeasurementsLinksDf.columns[myMeasurementsLinksDf.iloc[0].eq(imageLinkColumnLabel).idxmax()]
 
                 linkToData = myMeasurementsDFLinks_filtered[linkColumnLabelExcel].to_string()
                 start_index = linkToData.find('"') + 1

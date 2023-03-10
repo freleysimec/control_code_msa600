@@ -121,7 +121,7 @@ class MeasurementOutput():
             measurementDataLabel= key
             measurementDataValue = measurementData[key]
             self.performedMeasurementsDF.at[measurementIndex, measurementDataLabel] = measurementDataValue
-        self.performedMeasurementsDF.at[measurementIndex, 'NAME'] = name
+        # self.performedMeasurementsDF.at[measurementIndex, 'NAME'] = name
         self.performedMeasurementsDF.to_excel(self.excelFileMeasurements, sheet_name='PERFORMED')
 
     def save_measurement_as_ignored(self, experimentIndex, message):

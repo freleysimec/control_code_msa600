@@ -1,3 +1,4 @@
+from imports import *
 import os
 import time
 import my_setup as mySetup

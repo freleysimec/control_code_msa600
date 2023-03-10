@@ -33,30 +33,43 @@ print("main")
 def main():    
 
     ## FOR ALL SVD FILES
-    for index, row in myPerformedMeasurementsDF.iterrows():
-        if index != "abreviation" :
+    for measurementIndex, row in myPerformedMeasurementsDF.iterrows():
+        if measurementIndex != "abreviation" :
             performedMeasurementName = row['NAME'] 
             if performedMeasurementName != "IGNORED STRUCTURE" and performedMeasurementName != "IGNORED" :
                 
                 performedMeasurementNameFrequency = performedMeasurementName + rfFileNameAddition
                 performedMeasurementNameAmplitude = performedMeasurementName + ampFileNameAddition
                 svdFilenameFrequency = performedMeasurementNameFrequency + ".svd"
-                svdFilenameAmplitude= performedMeasurementNameAmplitude + ".svd"
+                fileNameResonanceAmplitudeSVD= performedMeasurementNameAmplitude + ".svd"
                 files = os.listdir(resultsDirectory)
                 
                 if svdFilenameFrequency in files:
-                    print("index: " + str(index))
+                    print("index: " + str(measurementIndex))
                     mySVD = Svd(resultsDirectory = resultsDirectory,  filename = svdFilenameFrequency)
                     
                     # SAVE FFT PLOT
-                    svdMethods.save_fft_plot(mySVD,
-                                             resultsDirectory=resultsDirectory, 
-                                             resultsDirectoryRelative=resultsDirectoryRelative,
-                                             columnLabel="FFT", 
-                                             measurementName=performedMeasurementNameFrequency,
-                                             index =index,
-                                             myPerformedMeasurements=myPerformedMeasurements,
-                                             )
+                    # svdMethods.save_fft_plot(mySVD,
+                    #                          resultsDirectory=resultsDirectory, 
+                    #                          resultsDirectoryRelative=resultsDirectoryRelative,
+                    #                          columnLabel="FFT", 
+                    #                          measurementName=performedMeasurementNameFrequency,
+                    #                          index =index,
+                    #                          myPerformedMeasurements=myPerformedMeasurements,
+                    #                          )
+
+                    # DETERMINE THE DISPLACEMENT AMPLITUDE FROM THE MEASUREMENT DATA  AND SAVE
+                    mySVD = Svd(resultsDirectory = resultsDirectory,  filename = fileNameResonanceAmplitudeSVD)
+                    displacementAmplitude = mySVD.get_displacement_amplitude(point=1)
+                    actuationAmplitude = mySVD.get_actuation_amplitude(point=1)
+                    relativeDisplacementAmplitude = displacementAmplitude/actuationAmplitude
+                    measurementData = {
+                        "V": actuationAmplitude,
+                        "D_V": relativeDisplacementAmplitude,
+                    }
+
+                    myPerformedMeasurements.save_measurement_datas(measurementIndex, measurementData, name="jos")
+
                 
                 # # Get Voltage AMPLITUDE
                 # if svdFilenameAmplitude in files:
@@ -71,7 +84,7 @@ def main():
                     # SAVE HEATMAP
 
                 else:
-                    print("no svd file found for measurement: " + str(index))
+                    print("no svd file found for measurement: " + str(measurementIndex))
             # break        
 
 if __name__ == "__main__":
