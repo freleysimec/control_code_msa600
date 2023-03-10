@@ -5,6 +5,7 @@ import my_methods as myMethods
 import my_excel_handler as myExcelHandler
 import os
 import sys
+import utilities.my_computer_vision as myComputerVision
 
 
 projectLabel = "testje"
@@ -18,10 +19,16 @@ def main():
 
     ## INITIALISE FILES
     projectDirectory = os.path.join(projectFolder)
+    resultsDirectory = os.path.join(projectDirectory, "results")
+    imagesDirectory = os.path.join(resultsDirectory, "images")
 
     if not os.path.exists(projectDirectory):
         print("Can't find project directory: " + projectDirectory)
         sys.exit()
+    if not os.path.exists(resultsDirectory):
+        os.makedirs(resultsDirectory)    
+    if not os.path.exists(imagesDirectory):
+        os.makedirs(imagesDirectory)
 
     ## INITIALISE THE SETUP
     mySetup.initiate()
@@ -30,10 +37,9 @@ def main():
     ## INITIALISE WAFERMAP
     myVerifiedWaferMap = myExcelHandler.VerifiedWaferMap(projectLabel=projectLabel, projectDirectory=projectDirectory)
 
-    ## GET REFERENCE IMAGE
-    
-
-
+    ## TAKE AND SAVE REFERENCE IMAGE
+    myReferenceInputImageIsOk = input("move MSA600 (not the chuck!!) to the reference location and press enter when ready:")
+    myComputerVision.take_and_save_reference_image(imagesDirectory=imagesDirectory, mySetup=mySetup)
 
     ## CAPTURE COORDINATES & FOCUS HEIGHT
     finished = False
