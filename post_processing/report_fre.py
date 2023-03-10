@@ -9,6 +9,9 @@ import plotly.graph_objects as go
 pio.templates.default = "plotly_dark"
 import statistics as st
 
+rawDataFile = r'C:\Users\samsom43\OneDrive - imec\Documents\230220 automated wafer mapping results.csv'
+dieMappingFile = r'C:\Users\samsom43\OneDrive - imec\Documents\DieMapping.csv'
+
 # initialize datapane app dictionnary
 dp_dict = {}
 report_title = 'CANOPUS MMA Brownian frequency measurement report'
@@ -43,7 +46,7 @@ def add_subsection(section_title):
     page_number = len(dp_dict)
     subsection_number = subsection_number + 1
     dp_dict[list(dp_dict)[-1]].append('#### ' + str(page_number) + '.' + str(section_number) + '.' + str(subsection_number) + ' ' + section_title)
-    
+
 def add_block(block):
     dp_dict[list(dp_dict)[-1]].append(block)
         
@@ -55,11 +58,11 @@ add_block(dp.Text(f"""<i>Report reference : </i>{report_reference}
 <i>Generation date : </i>{report_date.strftime('%d/%m/%Y')}                               
 <i>Generator version : </i>{report_version}"""))
 
-raw_data = pd.read_csv(r'C:\Users\samsom43\OneDrive - imec\Documents\230220 automated wafer mapping results.csv')
+raw_data = pd.read_csv(rawDataFile)
 #raw_data2 = pd.read_csv(r'C:\Users\samsom43\OneDrive - imec\Documents\230220 automated wafer mapping results.csv')
 ##raw_data2['wafer number']=99
 #raw_data=pd.concat([raw_data,raw_data2])
-die_mapping = pd.read_csv(r'C:\Users\samsom43\OneDrive - imec\Documents\DieMapping.csv')
+die_mapping = pd.read_csv(dieMappingFile)
 
 w=raw_data['wafer number'].unique()
 #ww=np.array2string(w)

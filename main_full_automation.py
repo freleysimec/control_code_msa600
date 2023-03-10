@@ -13,6 +13,8 @@ settingsFileFrequency = "pumba_frequency.set"
 settingsFileAmplitude = "pumba_amplitude.set"
 averaging = 10
 
+
+
 ### NO TOUCHY TOUCHY ###------------------------------------------------------------
 
 def main():
@@ -144,18 +146,16 @@ if __name__ == "__main__":
 
 
 #TODO: get settingsfile from userInput
-#TODO: email polytec with error en question set settings
-#TODO: remaining time estimate
-#TODO: implement multiple scan points: scan points in excell file
-
-#TODO: tutorial code sharing
 #TODO: computer vision: autofocus
-
-#TODO: get awg inputs from userInput
 #TODO: get all data from msa-settings info file
 #TODO: improve averaging: from settings file
-#TODO: more natural Wafermap input (1-23 in excel)
+#TODO: implement multiple scan points: scan points in excell file
 
+#TODO: email polytec with error en question set settings
+#TODO: remaining time estimate
+#TODO: tutorial code sharing
+#TODO: get awg inputs from userInput
+#TODO: more natural Wafermap input (1-23 in excel)
 #TODO: mySetup as class
 #TODO: simplify code: one rule for "FOR ALL MEASUREMENTS" for loop
 #TODO: rename excel file tabs
