@@ -3,6 +3,7 @@ import os
 import time
 import my_setup as mySetup
 from post_processing.svd_class import*
+import utilities.my_computer_vision as myComputerVision
 import my_excel_handler as myExcelHandler
 import sys
 
@@ -29,12 +30,15 @@ def main():
     projectDirectory = os.path.join(projectFolder)
     resultsDirectory = os.path.join(projectDirectory, "results")
     settingsDirectory = os.path.join(projectDirectory, "msa600 settings")
+    imagesDirectory = os.path.join(resultsDirectory, "images")
 
     if not os.path.exists(projectDirectory):
         print("Can't find project directory: " + projectDirectory)
         sys.exit()
     if not os.path.exists(resultsDirectory):
-        os.makedirs(resultsDirectory)
+        os.makedirs(resultsDirectory)    
+    if not os.path.exists(imagesDirectory):
+        os.makedirs(imagesDirectory)
 
     myUserInput = myExcelHandler.UserInput(projectLabel=projectLabel, projectDirectory=projectDirectory)
     myVerifiedWaferMap = myExcelHandler.VerifiedWaferMap(projectLabel=projectLabel, projectDirectory=projectDirectory)
@@ -90,9 +94,24 @@ def main():
 
                     # Move MSA-600 to focus height
                     mySetup.myPav.move_probe_z(verifiedElevation) 
+                    initialMsa600Coordinates = mySetup.myPav.get_probe_coordinates_relative_to_home()
+
+
+
+
 
                     # MOVE SCOPE TO EXACT POSITION
-                    # mymethods...
+                    myComputerVision.take_and_save_image(imagesDirectory=imagesDirectory, imageName = "thisDieImage", mySetup=mySetup)
+                    scopeTranslation = myComputerVision.get_translation_between_myImage_and_reference_image(imagesDirectory=imagesDirectory, myImage = "thisDieImage.png", referenceImageName = "referenceImage", mySetup=mySetup)
+                    
+                    newXcoord = float(initialMsa600Coordinates[1]) -scopeTranslation[0]
+                    newYcoord = float(initialMsa600Coordinates[2]) - scopeTranslation[1]
+                    mySetup.myPav.move_probe_relative_to_home(x = newXcoord, y =newYcoord)
+
+
+
+
+
 
                     # PERFORM MEASUREMENT 
                     print("x postion: " + str(dieCoordinates[0]))
@@ -134,7 +153,7 @@ def main():
                 ## SAVE performed measurement in "measurements done file" (anotate IGNORED under DIE)
                 myPerformedMeasurements.save_measurement_as_ignored(measurementIndex, "IGNORED")
                 
-            # break
+            break
 
     ## FINISH THE MEASUREMENTS    
     mySetup.myPav.move_chuck_separation()

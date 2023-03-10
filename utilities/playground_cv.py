@@ -58,7 +58,7 @@ imageInImagesDirectory = os.path.join(imagesDirectory, filename_without_ext +'.p
 image.save(imageInImagesDirectory)   
 
 # get translation values
-translation = myMethods.get_translation_between_two_images(imagesDirectory= imagesDirectory,  referenceImage="centered_focussed.png", otherImage= "otherImage.png")
+translation = myMethods.get_translation_between_two_images(imagesDirectory= imagesDirectory,  referenceImageName="centered_focussed.png", otherImage= "otherImage.png")
 print("translation: "+str(translation))
 
 # move MSA to new position

@@ -30,6 +30,11 @@ def main():
     ## INITIALISE WAFERMAP
     myVerifiedWaferMap = myExcelHandler.VerifiedWaferMap(projectLabel=projectLabel, projectDirectory=projectDirectory)
 
+    ## GET REFERENCE IMAGE
+    
+
+
+
     ## CAPTURE COORDINATES & FOCUS HEIGHT
     finished = False
     while finished == False:
