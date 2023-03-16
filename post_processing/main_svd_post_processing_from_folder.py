@@ -8,7 +8,7 @@ sys.path.append(controlCodeDirectory)
 import svd_methods as svdMethods
 
 ## CUSTOM 
-projectFolder = r"C:\Users\leys40\OneDrive - imec\Desktop\control_code_msa600\computer_vision"
+projectFolder = r"D:\Fre\cv_test\results"
 pointsInSvd = 1
 
 ## INITIALISE FILES
@@ -19,13 +19,15 @@ if not os.path.exists(imagesDirectory):
 def main():    
 
     ## FOR ALL SVD FILES IN FOLDER
-    files = os.listdir(projectDirectory)
+    #files = os.listdir(projectDirectory)
+    files = [file for file in os.listdir(projectDirectory) if file.endswith('.svd')]
+
     for file in files:
         if os.path.isfile(os.path.join(projectDirectory, file)):
             filename = os.fsdecode(file)
             print(filename)
             mySVD = Svd(resultsDirectory = projectDirectory,  filename = filename)
-            imagingData = mySVD.get_image()
+            imagingData = mySVD.get_large_image()
             imageArray = imagingData['ImageArray']
             image = Image.fromarray(imageArray)
             filename_without_ext = os.path.splitext(filename)[0]

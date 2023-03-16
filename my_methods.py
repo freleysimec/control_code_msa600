@@ -2,9 +2,6 @@ import my_setup as mySetup
 import my_excel_handler as myExcelHandler
 
 
-
-
-
 def save_coordinates_and_msa600_elevation_semi_auto(dieIndex, myVerifiedWaferMap: myExcelHandler.VerifiedWaferMap):
     textInput = input("Enter 't' if Coordinates and Focus are OK or 'i' to ignore the die: ")
 
@@ -25,7 +22,7 @@ def save_coordinates_and_msa600_elevation_semi_auto(dieIndex, myVerifiedWaferMap
         print('index: ' +str(dieIndex))
         myVerifiedWaferMap.save_die_coordinates(index= dieIndex, coordinates=["IGNORED","IGNORED"])
 
-def save_coordinates_and_msa600_elevation_manual(myVerifiedWaferMap: myExcelHandler.VerifiedWaferMap):
+def save_chuck_position_and_msa600_elevation_manual(myVerifiedWaferMap: myExcelHandler.VerifiedWaferMap):
     textInput = input("Enter 't' if Coordinates and Focus are OK or 'f' to finish: ")
 
     if(textInput == 't'):
@@ -33,13 +30,16 @@ def save_coordinates_and_msa600_elevation_manual(myVerifiedWaferMap: myExcelHand
         print('saving coordinates & focus elevation')
         chuckCoordinates = mySetup.myPav.get_chuck_coordinates()
         probeCoordinates = mySetup.myPav.get_probe_coordinates_relative_to_home()
+        thetaPosition= mySetup.myPav.get_theta_position()
+        
         x = float(chuckCoordinates[0])
         y = float(chuckCoordinates[1])
         msa600_elevation = float(probeCoordinates[3])        
-        #save coordinates
         print('index: ' +str(dieIndex))
         myVerifiedWaferMap.save_die_coordinates(index= dieIndex, coordinates=[x,y])
         myVerifiedWaferMap.save_msa600_elevation(index= dieIndex, elevation = msa600_elevation)
+        myVerifiedWaferMap.save_theta_position(index = dieIndex, thetaPosition = thetaPosition)
+        
         return False
     elif(textInput == 'f'):
         return True

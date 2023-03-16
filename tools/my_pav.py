@@ -68,12 +68,21 @@ class PAVclass(object):
         return self.respo
 
     def move_chuck_relative_to_home(self, x, y):
-            origin = "H"
-            self.move_chuck(x, y, origin)
+        origin = "H"
+        self.move_chuck(x, y, origin)
+        
+    def move_theta(self, theta):
+        self.handler = self.RM.open_resource(self.port)
+        self.handler.clear()
+        self.handler.query('ReadSystemStatus')
 
+        self.respo = self.handler.query('MoveTheta ' + str(theta))   #PAV Remote Interface P82/91: 
+        self.handler.close()
+        return self.respo
+    
     def move_chuck_relative_to_center(self, x, y):
-            origin = "C"
-            self.move_chuck(x, y, origin)
+        origin = "C"
+        self.move_chuck(x, y, origin)
 
     def move_chuck(self, x, y, origin):
         self.handler = self.RM.open_resource(self.port)
@@ -157,6 +166,20 @@ class PAVclass(object):
         self.handler.close()
         chuckCoordinates = self.respo.split(':')[1].split()
         return chuckCoordinates
+    
+    def get_theta_position(self):
+        self.handler = self.RM.open_resource(self.port)
+        self.handler.read_termination = '\r\n'
+        self.handler.write_termination = '\r\n'
+        self.handler.timeout = 30000
+
+        self.handler.clear()
+        self.handler.query('ReadSystemStatus')
+
+        self.respo = self.handler.query('ReadThetaPosition')    #default: in micron & relative to home [p87]
+        self.handler.close()
+        thetaPosition = self.respo.split(':')[1].split()
+        return thetaPosition
     
     def get_probe_coordinates_relative_to_home(self):
         self.handler = self.RM.open_resource(self.port)

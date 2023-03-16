@@ -43,7 +43,7 @@ def main():
                 svdFilenameFrequency = performedMeasurementNameFrequency + ".svd"
                 fileNameResonanceAmplitudeSVD= performedMeasurementNameAmplitude + ".svd"
                 files = os.listdir(resultsDirectory)
-                
+
                 if svdFilenameFrequency in files:
                     print("index: " + str(measurementIndex))
                     mySVD = Svd(resultsDirectory = resultsDirectory,  filename = svdFilenameFrequency)
@@ -68,7 +68,7 @@ def main():
                         "D_V": relativeDisplacementAmplitude,
                     }
 
-                    myPerformedMeasurements.save_measurement_datas(measurementIndex, measurementData, name="jos")
+                    myPerformedMeasurements.save_measurement_datas(measurementIndex, measurementData, name=performedMeasurementName)
 
                 
                 # # Get Voltage AMPLITUDE

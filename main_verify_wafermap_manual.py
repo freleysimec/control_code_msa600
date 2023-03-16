@@ -8,8 +8,8 @@ import sys
 import utilities.my_computer_vision as myComputerVision
 
 
-projectLabel = "testje"
-projectFolder = r"F:\testje"
+projectLabel = "cv_test"
+projectFolder = r"D:\Fre\cv_test"
 mySetup.usedTools = ["PAV", "MSA_600"]
 
 
@@ -41,10 +41,10 @@ def main():
     myReferenceInputImageIsOk = input("move MSA600 (not the chuck!!) to the reference location and press enter when ready:")
     myComputerVision.take_and_save_reference_image(imagesDirectory=imagesDirectory, mySetup=mySetup)
 
-    ## CAPTURE COORDINATES & FOCUS HEIGHT
+    ## CAPTURE COORDINATES, THETA & FOCUS HEIGHT
     finished = False
     while finished == False:
-        finished = myMethods.save_coordinates_and_msa600_elevation_manual( myVerifiedWaferMap=myVerifiedWaferMap)
+        finished = myMethods.save_chuck_position_and_msa600_elevation_manual( myVerifiedWaferMap=myVerifiedWaferMap)
         mySetup.myPav.move_chuck_separation()
 
     ## FINISH THE MEASUREMENTS    

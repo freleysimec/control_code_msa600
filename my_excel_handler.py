@@ -7,7 +7,7 @@ import os
 class UserInput():
     def __init__(self, projectLabel, projectDirectory):
         self.projectFile = os.path.join(projectDirectory, projectLabel + '.xlsx')
-        self.plannedMeasurementsDf = pd.read_excel(self.projectFile, index_col=0, sheet_name= "EXPERIMENTS")  #Pandas DataFrame
+        self.plannedMeasurementsDf = pd.read_excel(self.projectFile, index_col=0, sheet_name= "MEASUREMENTS")  #Pandas DataFrame
         self.toolsDf = pd.read_excel(self.projectFile, index_col=0, sheet_name="TOOLS")
         self.waferMapDf = pd.read_excel(self.projectFile, index_col=0, sheet_name= "WAFER_MAP")
         self.dieMapDf = pd.read_excel(self.projectFile, index_col=0, sheet_name= "DIE_MAP")
@@ -40,14 +40,15 @@ class UserInput():
         filename  = str(experimentIndex) 
 
         for column_name in self.plannedMeasurementsDf.columns[0:]:
-            column_data = self.plannedMeasurementsDf[column_name]
-            abreviation = column_data["abreviation"]
-            if not pd.notna(abreviation): 
-                substring = "_" + str(column_data[experimentIndex])
-            else: 
-                substring = "_" + str(abreviation) + str(column_data[experimentIndex])
+            if column_name != "msa600 settings":
+                column_data = self.plannedMeasurementsDf[column_name]
+                abreviation = column_data["abreviation"]
+                if not pd.notna(abreviation): 
+                    substring = "_" + str(column_data[experimentIndex])
+                else: 
+                    substring = "_" + str(abreviation) + str(column_data[experimentIndex])
 
-            filename += substring
+                filename += substring
 
         date = datetime.datetime.now().strftime("%Y%m%d")
         filename += "_"+date
@@ -73,6 +74,10 @@ class VerifiedWaferMap():
         self.verifiedWaferMapDf.at[index, 'VerifiedY'] = - coordinates[1]
         self.verifiedWaferMapDf.to_excel(self.excelFile, sheet_name='WAFERMAP')
 
+    def save_theta_position(self, index, thetaPosition):
+        self.verifiedWaferMapDf.at[index, 'THETA'] = thetaPosition
+        self.verifiedWaferMapDf.to_excel(self.excelFile, sheet_name='WAFERMAP')
+        
     def save_msa600_elevation(self, index, elevation):
         self.verifiedWaferMapDf.at[index, 'VERIFIED_MSA_ELEVATION'] =  elevation
         self.verifiedWaferMapDf.to_excel(self.excelFile, sheet_name='WAFERMAP')
@@ -98,7 +103,11 @@ class VerifiedWaferMap():
         yDie = self.verifiedWaferMapDf.at[dieIndex, 'VerifiedY']
         dieCoordinates = [xDie, yDie]
         return dieCoordinates
-
+    
+    def get_theta(self, dieIndex):
+        theta = self.verifiedWaferMapDf.at[dieIndex, 'THETA']
+        return theta
+        
     def get_verified_msa600_elevation_at_die(self, dieIndex):
         verifiedMSA600Elevation = self.verifiedWaferMapDf.at[dieIndex, 'VERIFIED_MSA_ELEVATION']
         return verifiedMSA600Elevation
@@ -108,12 +117,12 @@ class MeasurementOutput():
         self.excelFileUserInput = os.path.join(projectDirectory, projectLabel + '.xlsx')
         performedMeasurementsName = projectLabel +"_performed_measurements"
         self.excelFileMeasurements = os.path.join(projectDirectory, performedMeasurementsName + '.xlsx')
-        self.plannedMeasurementsDf = pd.read_excel(self.excelFileUserInput, index_col=0, sheet_name= "EXPERIMENTS")
+        self.plannedMeasurementsDf = pd.read_excel(self.excelFileUserInput, index_col=0, sheet_name= "MEASUREMENTS")
         try:
             self.performedMeasurementsDF = pd.read_excel(self.excelFileMeasurements, index_col=0, sheet_name= "PERFORMED")  #Pandas DataFrame
             "Found performed measurements excel file"
         except:
-            self.performedMeasurementsDF = pd.read_excel(self.excelFileUserInput, index_col=0, sheet_name= "EXPERIMENTS")
+            self.performedMeasurementsDF = pd.read_excel(self.excelFileUserInput, index_col=0, sheet_name= "MEASUREMENTS")
             "no performed measurements found, so empty dataframe created"
 
     def save_measurement_datas(self, measurementIndex, measurementData, name) :
@@ -121,7 +130,7 @@ class MeasurementOutput():
             measurementDataLabel= key
             measurementDataValue = measurementData[key]
             self.performedMeasurementsDF.at[measurementIndex, measurementDataLabel] = measurementDataValue
-        # self.performedMeasurementsDF.at[measurementIndex, 'NAME'] = name
+        self.performedMeasurementsDF.at[measurementIndex, 'NAME'] = name
         self.performedMeasurementsDF.to_excel(self.excelFileMeasurements, sheet_name='PERFORMED')
 
     def save_measurement_as_ignored(self, experimentIndex, message):

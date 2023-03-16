@@ -4,12 +4,25 @@ import os
 
 def main():
 
-    projectFolder = r"C:\Users\leys40\OneDrive - imec\Desktop\control_code_msa600\computer_vision"
+    # projectFolder = r"C:\Users\leys40\OneDrive - imec\Desktop\control_code_msa600\computer_vision"
+    # projectFolder = r"C:\Users\leys40\OneDrive - imec\_METINGEN\cv_test"
+    projectFolder = r"D:\Fre\cv_test"
+    referenceImage = "referenceImage.png"
+    imageToBeTranslated = "thisDieImage.png"
+
+
+
+
+
+
+
     projectDirectory = os.path.join(projectFolder)
-    imagesDirectory = os.path.join(projectDirectory, "images")
+    resultsDirectory = os.path.join(projectDirectory, "results")
+
+    imagesDirectory = os.path.join(resultsDirectory, "images")
     # read the two images
-    imageLink1 = os.path.join(imagesDirectory, "centered_focussed.png")
-    imageLink2 = os.path.join(imagesDirectory, "small_focused.png")
+    imageLink1 = os.path.join(imagesDirectory, referenceImage)
+    imageLink2 = os.path.join(imagesDirectory, imageToBeTranslated)
 
     img1 = cv2.imread(imageLink1, cv2.IMREAD_GRAYSCALE)
     img2 = cv2.imread(imageLink2, cv2.IMREAD_GRAYSCALE)

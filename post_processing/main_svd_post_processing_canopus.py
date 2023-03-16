@@ -1,133 +1,79 @@
-from pvd_class import*
-from svd_class import*
 from my_working_folder_class import*
-from PIL import Image
-import my_excel_handler as myExcelHandler
-import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 import os
+import sys
+controlCodeDirectory = os.getcwd()
+sys.path.append(controlCodeDirectory)
+import my_excel_handler as myExcelHandler
+from svd_class import*
 
 
-### RAW DATA
-myName = "canopus"
-myFolder = "C:\\Users\\leys40\\OneDrive - imec\\Gargamel 2.0\\TOOLS\\MSA-600\\Measurements\\analysis\\"
-myRawDataFolder = "C:\\Users\\leys40\\OneDrive - imec\\Gargamel 2.0\\TOOLS\\MSA-600\\Measurements\\analysis\\canopus\\"  # END with \\
-pointsInSvd = 10
-filename = "20230217_110825_018_.svd"
+projectLabel = "20230316_DEFN"
+projectFolder = r"D:\Fre\20230316_DEFN"
+points = 10
 
-### CODE ###
-myWorkingFolder = MyWorkingFolder(name = myName)
-userInputInstance = myExcelHandler.UserInput(myFolder = myFolder, myName = myName)
-performedMeasurementsInstance = myExcelHandler.PerformedMeasurements(myFolder = myFolder, myName = myName)
-performedMeasurementsDF = performedMeasurementsInstance.get_performed_measurements()
-#filepath = 'canopus\\' + filename
+
+## INITIALISE FILES
+# controlCodeDirectory = os.getcwd()
+projectDirectory = os.path.join(projectFolder)
+resultsDirectory = os.path.join(projectDirectory, "results")
+settingsDirectory = os.path.join(projectDirectory, "msa600 settings")
+imagesDirectory = os.path.join(resultsDirectory, "images")
+
+if not os.path.exists(projectDirectory):
+    print("Can't find project directory: " + projectDirectory)
+    sys.exit()
+if not os.path.exists(resultsDirectory):
+    print("Can't find results directory: " + resultsDirectory)
+if not os.path.exists(imagesDirectory):
+    os.makedirs(imagesDirectory)
+
+## INITIALISE DATA
+myUserInput = myExcelHandler.UserInput(projectLabel=projectLabel, projectDirectory=projectDirectory)
+myPerformedMeasurements = myExcelHandler.MeasurementOutput(projectLabel = projectLabel, projectDirectory=projectDirectory)
+myPerformedMeasurementsDF = myPerformedMeasurements.performedMeasurementsDF
+myResultsFolder = MyWorkingFolder(projectDirectory=projectDirectory)
 
 
 def main():    
 
-    ### initiations
-    resonanceFrequenciesTilt = np.array([0])
-    resonanceFrequenciesPiston = np.array([0])
-    amplitudesTilt = np.array([0])
-    amplitudesPiston= np.array([0])
+    ## FOR ALL SVD FILES
+    for measurementIndex, row in myPerformedMeasurementsDF.iterrows():
+        if measurementIndex != "abreviation" :
+            performedMeasurementName = row['NAME'] 
+            if performedMeasurementName != "IGNORED STRUCTURE" and performedMeasurementName != "IGNORED" :
+              
+                svdFilename = performedMeasurementName + ".svd"
+                files = os.listdir(resultsDirectory)
 
-    #mySVD = Svd(filePath = filepath)
-
-    ## GET FREQUENCY, VELOCITY, DISPLACEMENT for all points
-    #myFrequencyResponse = mySVD.get_frequency_response(point=pointsInSvd)
-
-    ## PLOT FREQUENCY RESPONSE
-    #mySVD.plot_frequency_response(myFrequencyResponse)
-
-    # # GET IMAGE
-    # imagingData = mySVD.get_image()
-    # imageArray = imagingData['ImageArray']
-    # image = Image.fromarray(imageArray)
-    # image.show()
-
-
-    # SAVE IMAGE FOR ALL MEASUREMENTS
-    # for index, row in performedMeasurementsDF.iterrows():
-    #     if index != "abreviation":
-    #         performedMeasurmentIndex = row['FLAG'] 
-    #         if performedMeasurmentIndex != "IGNORED STRUCTURE" and performedMeasurmentIndex != "IGNORED" :
-    #             #print("performedMeasurmentIndex: " + str(performedMeasurmentIndex))
-    #             svdFilename = myWorkingFolder.find_svd_file_name_based_on_performedMeasurmentIndex(int(performedMeasurmentIndex))  # the minus one is to compensate for the fact that we start measuring at 0
-    #             if svdFilename != "no file found":
-    #                 measurementName = userInputInstance.get_measurement_filename(index = index)
-    #                 mySVD = Svd(myFolder = myRawDataFolder,  filename = svdFilename) 
+                if svdFilename in files:
+                    print("index: " + str(measurementIndex))
+                    mySVD = Svd(resultsDirectory = resultsDirectory,  filename = svdFilename)
                     
-    #                 imagingData = mySVD.get_image()
-    #                 imageArray = imagingData['ImageArray']
-    #                 scanPoints = imagingData['ScanPoints']
-
-    #                 x = scanPoints[:,0]
-    #                 y = scanPoints[:,1]
-    #                 # xM = scanPoints[5,0]
-    #                 # yM = scanPoints[5,1]
-
-    #                 # Display the image and the scatter plot
-    #                 fig, ax = plt.subplots()
-    #                 ax.imshow(imageArray, cmap='gray')
-    #                 ax.scatter(x, y, s=20, c='b', marker='.')
-    #                 # ax.scatter(xM, yM, s=20, c='r', marker='o')
-
-    #                 try:
-    #                     plt.savefig(myRawDataFolder + "images\\" + measurementName + '.png')
-    #                 except:
-    #                     folder_path = myRawDataFolder
-    #                     folder_name = 'images'
-    #                     full_folder_path = os.path.join(folder_path, folder_name)
-    #                     os.makedirs(full_folder_path)
-    #                     print("images folder created")
-    #                     plt.savefig(myRawDataFolder + "images\\" + measurementName + '.png')
-
-    #                 print("index: " + str(index))
-
-    #             else: 
-    #                 print("no svd file found for measurement: " + str(index))
-
-    # SAVE IMAGE OVERVIEW FOR ALL MEASUREMENTS
-    for index, row in performedMeasurementsDF.iterrows():
-        if index != "abreviation" :
-            performedMeasurmentIndexForImage = row['FLAG'] 
-            if performedMeasurmentIndexForImage != "IGNORED STRUCTURE" and performedMeasurmentIndexForImage != "IGNORED" :
-                performedMeasurmentIndexForData = performedMeasurmentIndexForImage -1
-                svdFilenameForImage = myWorkingFolder.find_svd_file_name_based_on_performedMeasurmentName(int(performedMeasurmentIndexForImage))
-                svdFilenameForData = myWorkingFolder.find_svd_file_name_based_on_performedMeasurmentName(int(performedMeasurmentIndexForData))
-                
-                if svdFilenameForImage != "no file found":
-                    measurementName = userInputInstance.get_measurement_filename(index = index)
-                    measurementName = "overview_" + measurementName 
-                    mySVDForImage = Svd(resultsDirectory = myRawDataFolder,  filename = svdFilenameForImage) 
-                    mySVDForData = Svd(resultsDirectory = myRawDataFolder,  filename = svdFilenameForData) 
-                    
-                    imagingData = mySVDForImage.get_image()
-                    frequencyResponse_1 = mySVDForData.get_fft_data(point=1)
-                    frequencyResponse_2 = mySVDForData.get_fft_data(point=2)
-                    frequencyResponse_3 = mySVDForData.get_fft_data(point=3)
-                    frequencyResponse_4 = mySVDForData.get_fft_data(point=4)
-                    frequencyResponse_5 = mySVDForData.get_fft_data(point=5)
-                    frequencyResponse_6 = mySVDForData.get_fft_data(point=6)
-                    frequencyResponse_7 = mySVDForData.get_fft_data(point=7)
-                    frequencyResponse_8 = mySVDForData.get_fft_data(point=8)
-                    frequencyResponse_9 = mySVDForData.get_fft_data(point=9)
-                    frequencyResponse_10 = mySVDForData.get_fft_data(point=10)
+                    imagingData = mySVD.get_image()
+                    frequencyResponse_1 = mySVD.get_fft_data(point=1)
+                    frequencyResponse_2 = mySVD.get_fft_data(point=2)
+                    frequencyResponse_3 = mySVD.get_fft_data(point=3)
+                    frequencyResponse_4 = mySVD.get_fft_data(point=4)
+                    frequencyResponse_5 = mySVD.get_fft_data(point=5)
+                    frequencyResponse_6 = mySVD.get_fft_data(point=6)
+                    frequencyResponse_7 = mySVD.get_fft_data(point=7)
+                    frequencyResponse_8 = mySVD.get_fft_data(point=8)
+                    frequencyResponse_9 = mySVD.get_fft_data(point=9)
+                    frequencyResponse_10 = mySVD.get_fft_data(point=10)
 
 
 
-                    # for point in range(1, pointsInSvd+1):
-                    #     resonananceFrequencyPiston = mySVDForData.get_resonance_frequency(point=point, fMin=7000, fMax=12000)
-                    #     resonananceFrequencyTilt = mySVDForData.get_resonance_frequency(point=point,fMin=2000, fMax=6000)
-
-                    #     performedMeasurementsInstance.save_data(index = index, label = "RF Piston " + str(point), data = resonananceFrequencyPiston)
-                    #     performedMeasurementsInstance.save_data(index = index, label = "RF Tilt " + str(point), data = resonananceFrequencyTilt)
-
-
-
-                    # plt.plot(frequencyResponse_0[0], frequencyResponse_0[1], color = 'black')
-                    # plt.plot(frequencyResponse_0[0], frequencyResponse_0[1], color = 'black')
+                    for point in range(1, points+1):
+                        resonananceFrequencyPiston = mySVD.get_resonance_frequency(point=point, fMin=7000, fMax=12000)
+                        resonananceFrequencyTilt = mySVD.get_resonance_frequency(point=point,fMin=2000, fMax=6000)
+                        
+                        measurementData = {
+                            "RF Piston " + str(point): resonananceFrequencyPiston,
+                            "RF Tilt " + str(point): resonananceFrequencyTilt,
+                        }
+                        
+                        myPerformedMeasurements.save_measurement_datas(measurementIndex, measurementData, name=performedMeasurementName)
 
 
                     imageArray = imagingData['ImageArray']
@@ -176,25 +122,12 @@ def main():
                     ax[1, 2].plot(frequencyResponse_8[0], frequencyResponse_8[1], color = 'b')
                     ax[1, 2].set_ylim([0, 2*10**-9])
 
-                    path = myRawDataFolder + "images\\" + measurementName + '.png'
-                    try:
-                        plt.savefig(path)
-                    except:
-                        folder_path = myRawDataFolder
-                        folder_name = 'images'
-                        full_folder_path = os.path.join(folder_path, folder_name)
-                        os.makedirs(full_folder_path)
-                        print("images folder created")
-                        
-                        plt.savefig(path)
+                    path = os.path.join(imagesDirectory, performedMeasurementName + '.png')
+                    plt.savefig(path)
 
-                    relativePath =  "images\\" + measurementName + '.png'
+                    relativePath =  "images\\" + performedMeasurementName + '.png'
 
-                    performedMeasurementsInstance.save_link_to_data(index = index, label = "OVERVIEW", dataName = "image Link", path= relativePath)
-
-
-                    print("index: " + str(index))
-
+                    myPerformedMeasurements.save_link_to_data(index = measurementIndex, columnLabel = "OVERVIEW", linkName = "image Link", path= relativePath)
 
                     # #SCATTER PLOT RESONANCE FREQUENCY for only choosen measurements
                     # if row['score 1'] == 1  : 
@@ -210,49 +143,10 @@ def main():
                     #         amplitudesPiston = np.append(amplitudesPiston, amplitudeAtResonanceFrequencyPiston)
 
                 else: 
-                    print("no svd file found for measurement: " + str(index))
+                    print("no svd file found for measurement: " + str(measurementIndex))
 
-            #break  #only one plot
-    # print("plotting")
-    # resonanceFrequenciesTilt = resonanceFrequenciesTilt[1:]
-    # resonanceFrequenciesPiston = resonanceFrequenciesPiston[1:]
-    # amplitudesTilt = amplitudesTilt[1:]
-    # amplitudesPiston= amplitudesPiston[1:]
-
-    # plt.scatter(resonanceFrequenciesPiston, amplitudesPiston)
-    # plt.show()
-
-
-    # # # FOR ALL MEASUREMENTS GET RESONANCE FREQUENCIES AND SAVE TO EXCEL
-
-    # for index, row in performedMeasurementsDF.iterrows():
-    #     if index != "abreviation":
-    #         performedMeasurmentIndex = row['FLAG'] 
-    #         if performedMeasurmentIndex != "IGNORED STRUCTURE" and performedMeasurmentIndex != "IGNORED" :
-    #             #print("performedMeasurmentIndex: " + str(performedMeasurmentIndex))
-    #             filename = myWorkingFolder.find_svd_file_name_based_on_performedMeasurmentIndex(int(performedMeasurmentIndex))  # the minus one is to compensate for the fact that we start measuring at 0
-    #             if filename != "no file found":
-    #                 # repeat for  i = 1 to 10
-    #                 for point in range(1, pointsInSvd+1):
-    #                     mySVD = Svd(filePath = 'canopus\\'+ filename)  #TODO: make this more generic
-    #                     resonananceFrequencyPiston = mySVD.get_resonance_frequency(point=point, fMin=7000, fMax=12000)
-    #                     resonananceFrequencyTilt = mySVD.get_resonance_frequency(point=point,fMin=2000, fMax=6000)
-
-    #                     performedMeasurements.save_data(index = index, label = "RF Piston " + str(point), data = resonananceFrequencyPiston)
-    #                     performedMeasurements.save_data(index = index, label = "RF Tilt " + str(point), data = resonananceFrequencyTilt)
-                        
-    #                     print("performedMeasurmentIndex: " + str(performedMeasurmentIndex))
-    #             else: 
-    #                 print("no svd file found for measurement: " + str(performedMeasurmentIndex))
-    #                 performedMeasurements.save_data(label = "RF", data = "NA", index = index)
-
+            break  #only one plot
 
 
 if __name__ == "__main__":
     main()
-
-
-#TODO: now only for 1 point: we need 10 points
-#TODO: have a max for all frequencies.. but how to know if wrong...: find average, compare max value with average
-#TODO: heatmap
-#TODO: date of experiment in performed measurements excel

@@ -8,15 +8,15 @@ class MSA600(object):
         self.communicationDirectory = "msa600_macros"
         self.requestFileName = "requests.txt"
         self.responseFileName = "response.txt"
+        
+        # CREATE COMMUNICATION DIRECTORY IF IT DOES NOT EXIST
+        if not os.path.exists(self.communicationDirectory):
+            os.makedirs(self.communicationDirectory)
 
     # CREATE REQUESTS & WAIT FOR RESPONSE & IF FOUND READ RESPONSE & DELETE RESPONSE FILE
     def send_requests(self, requests, timeLimitForResponse = 10):
         response = ""
 
-        # CREATE COMMUNICATION DIRECTORY IF IT DOES NOT EXIST
-        if not os.path.exists(self.communicationDirectory):
-            os.makedirs(self.communicationDirectory)
-        
         # CREATE REQUESTS 
         with open(os.path.join(self.communicationDirectory, self.requestFileName), 'w') as f:
             for line in requests:
@@ -39,23 +39,28 @@ class MSA600(object):
         
         return response
 
-    def send_scan_request_and_trigger_awg(self,request, myAwgExt:  AWGclass, timeLimitForResponse = 10, triggerWaitTime = 2, triggerOpenTime = 1, averaging =1):
-        response = ""
 
-        # CREATE COMMUNICATION DIRECTORY IF IT DOES NOT EXIST
-        if not os.path.exists(self.communicationDirectory):
-            os.makedirs(self.communicationDirectory)
-        
+
+
+    def send_scan_request_and_trigger_awg(self,resultspath, myAwgExt:  AWGclass, sampleTime, averaging =1, points = 1,  timeLimitForResponse = 10, triggerWaitTime = 2):
+        response = ""
+        requests = ["SCAN_AND_SAVE," + str(resultspath)]
+
         # CREATE REQUESTS 
         with open(os.path.join(self.communicationDirectory, self.requestFileName), 'w') as f:
-            for line in request:
+            for line in requests:
                 f.write(line + "\n")
         print("Request sent")
         
-        # TRIGGER AWG AFTER 1.5 S (AcquisitionSlave.bas loops every second)
+        ## Repeat for all points: 
         time.sleep(triggerWaitTime)
-        for i in range(averaging):
-            myAwgExt.awg_trigger(triggerOpenTime=triggerOpenTime)
+        for i in range(points):
+            print("point: "+str(i+1))
+            ## TRIGGER AWG AFTER 1.5 S (AcquisitionSlave.bas loops every second)
+            # trigger the amount of averaging and wait for at least 
+            for i in range(averaging):
+                myAwgExt.awg_trigger(triggerOpenTime=sampleTime+0.5)
+                time.sleep(sampleTime)
         
         
         # WAIT FOR RESPONSE & IF FOUND READ RESPONSE & DELETE RESPONSE FILE
@@ -73,3 +78,10 @@ class MSA600(object):
             print("Timeout: No response of the MSA600 received within " + str(timeLimitForResponse) + " seconds." + "Did you forget to run the macro?")
         
         return response
+    
+    
+    
+    
+    def change_settings(self, settingsPath):
+        requests = ["CHANGE_SETTINGS," + str(settingsPath)]
+        self.send_requests(requests, timeLimitForResponse= 20)

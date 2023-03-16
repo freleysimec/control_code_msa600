@@ -58,6 +58,40 @@ class Svd:
         plt.plot(frequencyResponse[0], frequencyResponse[1], color = 'black')
         plt.show()
 
+    def get_large_image(self):
+        self.image = self.polytecFile.Infos.VideoBitmap.Image(7, 1732, 1200)[0]
+        self.bytes = bytes(self.image)
+
+        self.Stream = io.BytesIO(self.bytes)
+        self.Picture = Image.open(self.Stream)
+
+        self.Array = np.array(self.Picture)
+        self.ImageArray = 255 * np.ones((1200, 1732, 4), dtype=np.uint8)
+        self.ImageArray[:, :, 0] = self.Array[:, :, 0]
+        self.ImageArray[:, :, 1] = self.Array[:, :, 1]
+        self.ImageArray[:, :, 2] = self.Array[:, :, 2]
+
+        self.ScanPoints = np.zeros((0, 2))
+
+        self.Left = self.polytecFile.Infos.MeasPoints.GetVideoRect()[0]
+        self.Top = self.polytecFile.Infos.MeasPoints.GetVideoRect()[1]
+        self.Right = self.polytecFile.Infos.MeasPoints.GetVideoRect()[2]
+        self.Bottom = self.polytecFile.Infos.MeasPoints.GetVideoRect()[3]
+
+        self.ScaleImageX = self.Right - self.Left
+        self.ScaleImageY = self.Top - self.Bottom
+
+        for i in range(1, self.polytecFile.Infos.MeasPoints.count + 1):
+            self.ScanPoints = np.append(self.ScanPoints, np.array([self.polytecFile.Infos.MeasPoints.Item(i).VideoXY()]), axis=0)
+
+        self.ScanPoints[:, 0] = 1732 * (self.ScanPoints[:, 0] - self.Left) / self.ScaleImageX
+        self.ScanPoints[:, 1] = 1200 - (1200 * (self.ScanPoints[:, 1] - self.Bottom) / self.ScaleImageY)
+
+        self.return_data = {'ImageArray': self.ImageArray, 'ScanPoints': self.ScanPoints}
+
+        return self.return_data
+    
+    
     def get_image(self):
         self.image = self.polytecFile.Infos.VideoBitmap.Image(7, 1920, 1080)[0]
         self.bytes = bytes(self.image)

@@ -66,11 +66,11 @@ class AWGclass(object):
         instr.write('OUTP:SYNC ON')
         time.sleep(0.5)
         instr.write('TRIG')
-        print('AWG Started') 
+        print('START TRIGGER') 
         time.sleep(triggerOpenTime)
         instr.write('OUTP1 OFF')
         instr.write('OUTP:SYNC OFF')
-        print('AWG Stopped') 
+        print('END TRIGGER') 
         time.sleep(0.5)
         
 

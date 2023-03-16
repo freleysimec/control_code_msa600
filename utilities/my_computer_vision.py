@@ -52,9 +52,9 @@ def take_and_save_image(imagesDirectory, imageName, mySetup):
     imageInImagesDirectory = os.path.join(imagesDirectory, filename_without_ext +'.png')
     image.save(imageInImagesDirectory)  
 
-def get_translation_between_myImage_and_reference_image(imagesDirectory, myImage, referenceImageName = "referenceImage.png"):
+def get_translation_between_myImage_and_reference_image(imagesDirectory, myImage, referenceImage):
 
-    imageLink1 = os.path.join(imagesDirectory, referenceImageName)
+    imageLink1 = os.path.join(imagesDirectory, referenceImage)
     imageLink2 = os.path.join(imagesDirectory, myImage)
 
     img1 = cv2.imread(imageLink1, cv2.IMREAD_GRAYSCALE)
