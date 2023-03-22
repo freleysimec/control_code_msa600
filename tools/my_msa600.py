@@ -59,9 +59,12 @@ class MSA600(object):
             ## TRIGGER AWG AFTER 1.5 S (AcquisitionSlave.bas loops every second)
             # trigger the amount of averaging and wait for at least 
             for i in range(averaging):
-                myAwgExt.awg_trigger(triggerOpenTime=sampleTime+0.5)
-                time.sleep(sampleTime)
-        
+                myAwgExt.awg_trigger(triggerOpenTime=sampleTime)
+                # time.sleep(sampleTime)
+        # for i in range(points):
+        #     print("point: "+str(i+1))
+        #     ## TRIGGER AWG AFTER 1.5 S (AcquisitionSlave.bas loops every second)
+        #     myAwgExt.awg_trigger(triggerOpenTime=0.01)
         
         # WAIT FOR RESPONSE & IF FOUND READ RESPONSE & DELETE RESPONSE FILE
         start_time = time.time()

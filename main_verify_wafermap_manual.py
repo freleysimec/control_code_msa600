@@ -8,8 +8,8 @@ import sys
 import utilities.my_computer_vision as myComputerVision
 
 
-projectLabel = "cv_test"
-projectFolder = r"D:\Fre\cv_test"
+projectLabel = "20230316_DEFN"
+projectFolder = r"D:\Fre\20230316_DEFN"
 mySetup.usedTools = ["PAV", "MSA_600"]
 
 
@@ -37,9 +37,9 @@ def main():
     ## INITIALISE WAFERMAP
     myVerifiedWaferMap = myExcelHandler.VerifiedWaferMap(projectLabel=projectLabel, projectDirectory=projectDirectory)
 
-    ## TAKE AND SAVE REFERENCE IMAGE
-    myReferenceInputImageIsOk = input("move MSA600 (not the chuck!!) to the reference location and press enter when ready:")
-    myComputerVision.take_and_save_reference_image(imagesDirectory=imagesDirectory, mySetup=mySetup)
+    # ## TAKE AND SAVE REFERENCE IMAGE
+    # myReferenceInputImageIsOk = input("move MSA600 (not the chuck!!) to the reference location and press enter when ready:")
+    # myComputerVision.take_and_save_reference_image(imagesDirectory=imagesDirectory, mySetup=mySetup)
 
     ## CAPTURE COORDINATES, THETA & FOCUS HEIGHT
     finished = False
@@ -50,6 +50,10 @@ def main():
     ## FINISH THE MEASUREMENTS    
     mySetup.myPav.move_chuck_separation()
     mySetup.myPav.move_chuck_relative_to_home(0,0)
+    thetaHome = myVerifiedWaferMap.get_theta(dieIndex = "r2c3")
+    print("thetaHome: " + str(thetaHome))
+    mySetup.myPav.move_theta(theta=thetaHome)
+    
     print('DONE: verified wafermap created')
 
 

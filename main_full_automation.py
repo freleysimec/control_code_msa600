@@ -170,19 +170,22 @@ if __name__ == "__main__":
     main()
 
 
+#TODO: get all data from msa-settings info file
+#TODO: email polytec with error en question set settings
+#TODO: remaining time estimate
+#TODO: get awg inputs from userInput
+#TODO: mySetup as class
+#TODO: select measurements based on measurement index
+#TODO: simplify code: one rule for "FOR ALL MEASUREMENTS" for loop
+#TODO: more natural Wafermap input (1-23 in excel)
+
+
+
+
 #TODO: computer vision: add rotation
 #TODO: computer vision: align: set constants
-#TODO: get all data from msa-settings info file
+#TODO: computer vision: autofocus
 
 #TODO: implement multiple scan points: scan point indexes in excell file
-#TODO: email polytec with error en question set settings
-
-#TODO: computer vision: autofocus
-#TODO: remaining time estimate
 #TODO: tutorial code sharing (first check Conda)
-#TODO: get awg inputs from userInput
-#TODO: more natural Wafermap input (1-23 in excel)
-#TODO: mySetup as class
-#TODO: simplify code: one rule for "FOR ALL MEASUREMENTS" for loop
 #TODO: Fré Quality factor for RF
-#TODO: select measurements based on measurement index

@@ -10,7 +10,8 @@ def take_and_save_reference_image(imagesDirectory, mySetup):
     communicationDirectory = "msa600_macros" #where msa600 settings for image taking is saved
 
     # SELECT THE MSA-600 SETTINGS
-    settingsPath = os.path.join(communicationDirectory)
+    settingsFile = "reference_image.set"
+    settingsPath = os.path.join(communicationDirectory, settingsFile)
     requests = ["CHANGE_SETTINGS," + str(settingsPath)]
     mySetup.myMsa600.send_requests(requests, timeLimitForResponse= 20)
 
@@ -33,7 +34,8 @@ def take_and_save_image(imagesDirectory, imageName, mySetup):
     communicationDirectory = "msa600_macros" #where msa600 settings for image taking is saved
 
     # SELECT THE MSA-600 SETTINGS
-    settingsPath = os.path.join(communicationDirectory)
+    fileName = "reference_image.set"
+    settingsPath = os.path.join(communicationDirectory, fileName)
     requests = ["CHANGE_SETTINGS," + str(settingsPath)]
     mySetup.myMsa600.send_requests(requests, timeLimitForResponse= 20)
 
@@ -45,16 +47,16 @@ def take_and_save_image(imagesDirectory, imageName, mySetup):
 
     # SAVE REFERENCE IMAGE
     mySVD = Svd(resultsDirectory = imagesDirectory,  filename = fileNameSVD)
-    imagingData = mySVD.get_image()
+    imagingData = mySVD.get_large_image()
     imageArray = imagingData['ImageArray']
     image = Image.fromarray(imageArray)
     filename_without_ext = os.path.splitext(fileNameSVD)[0]
     imageInImagesDirectory = os.path.join(imagesDirectory, filename_without_ext +'.png')
     image.save(imageInImagesDirectory)  
 
-def get_translation_between_myImage_and_reference_image(imagesDirectory, myImage, referenceImage):
+def get_translation_between_myImage_and_reference_image(imagesDirectory, myImage, referenceImageName):
 
-    imageLink1 = os.path.join(imagesDirectory, referenceImage)
+    imageLink1 = os.path.join(imagesDirectory, referenceImageName)
     imageLink2 = os.path.join(imagesDirectory, myImage)
 
     img1 = cv2.imread(imageLink1, cv2.IMREAD_GRAYSCALE)

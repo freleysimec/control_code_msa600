@@ -28,7 +28,7 @@ class PAVclass(object):
         self.handler = self.RM.open_resource(self.port)
         self.handler.read_termination = '\r\n'
         self.handler.write_termination = '\r\n'
-        self.handler.timeout = 30000
+        self.handler.timeout = 50000
 
         # self.handler.clear()
         self.respo = self.handler.query('ReadSystemStatus')
@@ -42,6 +42,9 @@ class PAVclass(object):
 
     def move_chuck_separation(self):
         self.handler = self.RM.open_resource(self.port)
+        self.handler.read_termination = '\r\n'
+        self.handler.write_termination = '\r\n'
+        self.handler.timeout = 50000
         self.handler.clear()
         self.handler.query('ReadSystemStatus')
 
@@ -51,6 +54,9 @@ class PAVclass(object):
     
     def move_chuck_align(self):
         self.handler = self.RM.open_resource(self.port)
+        self.handler.read_termination = '\r\n'
+        self.handler.write_termination = '\r\n'
+        self.handler.timeout = 50000
         self.handler.clear()
         self.handler.query('ReadSystemStatus')
 
@@ -60,6 +66,9 @@ class PAVclass(object):
 
     def move_chuck_to_contact(self):
         self.handler = self.RM.open_resource(self.port)
+        self.handler.read_termination = '\r\n'
+        self.handler.write_termination = '\r\n'
+        self.handler.timeout = 50000
         self.handler.clear()
         self.handler.query('ReadSystemStatus')
         
@@ -73,10 +82,15 @@ class PAVclass(object):
         
     def move_theta(self, theta):
         self.handler = self.RM.open_resource(self.port)
+        self.handler.read_termination = '\r\n'
+        self.handler.write_termination = '\r\n'
+        self.handler.timeout = 50000
         self.handler.clear()
         self.handler.query('ReadSystemStatus')
 
         self.respo = self.handler.query('MoveTheta ' + str(theta))   #PAV Remote Interface P82/91: 
+        print("repo: " + str(theta) +  ' xxx ' + self.respo)
+
         self.handler.close()
         return self.respo
     
@@ -86,6 +100,9 @@ class PAVclass(object):
 
     def move_chuck(self, x, y, origin):
         self.handler = self.RM.open_resource(self.port)
+        self.handler.read_termination = '\r\n'
+        self.handler.write_termination = '\r\n'
+        self.handler.timeout = 50000
         self.handler.clear()
         self.handler.query('ReadSystemStatus')
 
@@ -95,6 +112,9 @@ class PAVclass(object):
 
     def move_chuck_velocity(self, plusMinZeroX, plusMinZeroY):
         self.handler = self.RM.open_resource(self.port)
+        self.handler.read_termination = '\r\n'
+        self.handler.write_termination = '\r\n'
+        self.handler.timeout = 50000
         # self.handler.clear()
         self.handler.query('ReadSystemStatus')
         self.respo = self.handler.query('MoveChuckVelocity ' + plusMinZeroX  + " " + plusMinZeroY  + " 0 " + str(5.0) + " " + str(5.0))
@@ -103,6 +123,9 @@ class PAVclass(object):
 
     def stop_chuck_movement(self):
         self.handler = self.RM.open_resource(self.port)
+        self.handler.read_termination = '\r\n'
+        self.handler.write_termination = '\r\n'
+        self.handler.timeout = 50000
         self.handler.clear()
         self.handler.query('ReadSystemStatus')
         self.respo = self.handler.query('StopChuckMovement')
@@ -111,6 +134,9 @@ class PAVclass(object):
     
     def move_probe_z(self, z):
         self.handler = self.RM.open_resource(self.port)
+        self.handler.read_termination = '\r\n'
+        self.handler.write_termination = '\r\n'
+        self.handler.timeout = 50000
         self.handler.clear()
         self.handler.query('ReadSystemStatus')
 
@@ -120,6 +146,9 @@ class PAVclass(object):
     
     def move_probe_relative_to_home(self, x, y):
         self.handler = self.RM.open_resource(self.port)
+        self.handler.read_termination = '\r\n'
+        self.handler.write_termination = '\r\n'
+        self.handler.timeout = 50000
         self.handler.clear()
         self.handler.query('ReadSystemStatus')
 
@@ -135,7 +164,7 @@ class PAVclass(object):
         self.handler = self.RM.open_resource(self.port)
         self.handler.read_termination = '\r\n'
         self.handler.write_termination = '\r\n'
-        self.handler.timeout = 30000
+        self.handler.timeout = 50000
 
         self.handler.clear()
         self.handler.query('ReadSystemStatus')
@@ -157,7 +186,7 @@ class PAVclass(object):
         self.handler = self.RM.open_resource(self.port)
         self.handler.read_termination = '\r\n'
         self.handler.write_termination = '\r\n'
-        self.handler.timeout = 30000
+        self.handler.timeout = 50000
 
         self.handler.clear()
         self.handler.query('ReadSystemStatus')
@@ -171,18 +200,22 @@ class PAVclass(object):
         self.handler = self.RM.open_resource(self.port)
         self.handler.read_termination = '\r\n'
         self.handler.write_termination = '\r\n'
-        self.handler.timeout = 30000
+        self.handler.timeout = 50000
 
         self.handler.clear()
         self.handler.query('ReadSystemStatus')
 
         self.respo = self.handler.query('ReadThetaPosition')    #default: in micron & relative to home [p87]
+        print("repo: " + self.respo)
         self.handler.close()
         thetaPosition = self.respo.split(':')[1].split()
         return thetaPosition
     
     def get_probe_coordinates_relative_to_home(self):
         self.handler = self.RM.open_resource(self.port)
+        self.handler.read_termination = '\r\n'
+        self.handler.write_termination = '\r\n'
+        self.handler.timeout = 50000
         self.handler.clear()
         self.handler.query('ReadSystemStatus')
 

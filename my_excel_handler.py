@@ -75,7 +75,7 @@ class VerifiedWaferMap():
         self.verifiedWaferMapDf.to_excel(self.excelFile, sheet_name='WAFERMAP')
 
     def save_theta_position(self, index, thetaPosition):
-        self.verifiedWaferMapDf.at[index, 'THETA'] = thetaPosition
+        self.verifiedWaferMapDf.at[index, 'THETA'] = thetaPosition[0]
         self.verifiedWaferMapDf.to_excel(self.excelFile, sheet_name='WAFERMAP')
         
     def save_msa600_elevation(self, index, elevation):

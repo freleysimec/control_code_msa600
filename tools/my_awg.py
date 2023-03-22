@@ -57,23 +57,40 @@ class AWGclass(object):
 
         instr.close()
 
-    def awg_trigger(self, triggerOpenTime=1):
+    def output_off(self):
+        instr = self.RM.open_resource(self.port)
+        time.sleep(0.5)
+        instr.write('OUTP1 OFF')
+        instr.write('OUTP:SYNC OFF')
+        time.sleep(0.5)
+        instr.close()
         
+    def awg_trigger(self, triggerOpenTime):
+        
+        # instr = self.RM.open_resource(self.port)
+
+        # instr.write('OUTPUT1 ON')
+        # time.sleep(0.5)
+        # instr.write('OUTP:SYNC ON')
+        # time.sleep(0.5)
+        # instr.write('TRIG')
+        # print('START TRIGGER') 
+        # time.sleep(triggerOpenTime)
+        # instr.write('OUTP1 OFF')
+        # instr.write('OUTP:SYNC OFF')
+        # print('END TRIGGER') 
+        # time.sleep(0.5)
+        # instr.close()
         instr = self.RM.open_resource(self.port)
 
         instr.write('OUTPUT1 ON')
         time.sleep(0.5)
         instr.write('OUTP:SYNC ON')
-        time.sleep(0.5)
-        instr.write('TRIG')
-        print('START TRIGGER') 
         time.sleep(triggerOpenTime)
         instr.write('OUTP1 OFF')
         instr.write('OUTP:SYNC OFF')
         print('END TRIGGER') 
         time.sleep(0.5)
-        
-
         instr.close()
               
     def reset_config(self):

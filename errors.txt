@@ -1,0 +1,1 @@
+cv2.error: OpenCV(4.7.0) D:\a\opencv-python\opencv-python\opencv\modules\calib3d\src\ptsetreg.cpp:176: error: (-215:Assertion failed) count >= 0 && count2 == count in function 'cv::RANSACPointSetRegistrator::run'
