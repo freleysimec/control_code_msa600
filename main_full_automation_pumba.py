@@ -76,6 +76,7 @@ def main():
                 inDiameter = (xStructureRelativeToCenter**2 + yStructureRelativeToCenter**2) < 9025000000
                 if inRange and inDiameter:
 
+                    # GET FILENAMES
                     experimentName = myUserInput.get_experiment_filename(measurementIndex)
                     fileNameResonanceFrequencySVD = experimentName + "_resonanceFrequency.svd"
                     fileNameResonanceAmplitudeSVD = experimentName + "_amplitude.svd"
@@ -102,7 +103,7 @@ def main():
                     # START SCAN AND SAVE RESULTS
                     resultspath = os.path.join(resultsDirectory, fileNameResonanceFrequencySVD)
                     requests = ["SCAN_AND_SAVE," + str(resultspath)]
-                    mySetup.myMsa600.send_scan_request_and_trigger_awg(requests, myAwgExt= mySetup.myAwgExt, timeLimitForResponse= 20, averaging = averaging, triggerOpenTime=1)
+                    mySetup.myMsa600.send_scan_request_and_trigger_awg(requests, myAwgExt= mySetup.myAwgExt, timeLimitForResponse= 20, averageCount = averaging, triggerOpenTime=1)
 
                     # DETERMINE THE RESONANCE FREQUENCY FROM THE MEASUREMENT DATA
                     mySVD = Svd(resultsDirectory = resultsDirectory,  filename = fileNameResonanceFrequencySVD)

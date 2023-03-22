@@ -1,17 +1,14 @@
-from imports import *
 import os
 import time
 import my_setup as mySetup
+from msa_aquisition_settings_class import MsaAquisitionSettings
 from post_processing.svd_class import*
 import utilities.my_computer_vision as myComputerVision
 import my_excel_handler as myExcelHandler
 import sys
 
-projectLabel = "cv_test"
-projectFolder = r"D:\Fre\cv_test"
-#settingsFileFrequency = "reference_image.set"
-averaging = 1
-
+projectLabel = "20230316_DEFN"
+projectFolder = r"C:\Users\leys40\OneDrive - imec\_MEASUREMENTS\CANOPUS\20230316_DEFN"
 
 
 ### NO TOUCHY TOUCHY ###------------------------------------------------------------
@@ -60,7 +57,8 @@ def main():
             # MOVE CHUCK TO POI IF DIE NOT IGNORED
             dieIndex = measurement["die index"]
             dieCoordinates = myVerifiedWaferMap.get_coordinates_of_die(dieIndex)
-            
+
+
             if (not dieCoordinates[0] == "IGNORED"):
                 
                 #get structure coordinates
@@ -81,26 +79,35 @@ def main():
                 inDiameter = (xStructureRelativeToCenter**2 + yStructureRelativeToCenter**2) < 9025000000
                 if inRange and inDiameter:
                     
-                    # GET SETTINGS FILE
-                    settingsFile = myUserInput.get_settings_file(measurementIndex=measurementIndex)
-                    settingsPath = os.path.join(settingsDirectory, settingsFile)
-
-                    experimentName = myUserInput.get_experiment_filename(measurementIndex)
-                    fileNameSVD = experimentName + "_resonanceFrequency.svd"
-                
-                    # Move chuck to sum of die AND structure coordinates (opgelet, verified wafer is chuck coordinates en structure coordinates tegengestelde assen)
-                    mySetup.myPav.move_chuck_relative_to_home( -xStructureRelativeToHome, -yStructureRelativeToHome)
-
-                    # Move MSA-600 to focus height
+                    # GET PARAMETERS
                     verifiedElevation = myVerifiedWaferMap.get_verified_msa600_elevation_at_die(dieIndex)
+                    theta = myVerifiedWaferMap.get_theta(dieIndex)
+
+                    # GET SETTINGS
+                    settingsFileName = myUserInput.get_settings_file(measurementIndex=measurementIndex)
+                    settingsFile = os.path.join(settingsDirectory, settingsFileName)
+                    myMsaAquisitionSettings = MsaAquisitionSettings(settingsDirectory, settingsFile)
+                    averageCount = myMsaAquisitionSettings.averageCount
+                    measurementPointsCount = myMsaAquisitionSettings.measurementPointsCount
+                    sampleTime = myMsaAquisitionSettings.sampleTime
+
+                    # GET SVD NAME
+                    measurementName = myUserInput.get_experiment_filename(measurementIndex)
+                    svdFileName = measurementName + ".svd"
+                    svdFile = os.path.join(resultsDirectory, svdFileName)
+
+                    # Position Chuck
+                    mySetup.myPav.move_theta(theta = theta)
+                    mySetup.myPav.move_chuck_relative_to_home( -xStructureRelativeToHome, -yStructureRelativeToHome)
                     mySetup.myPav.move_probe_z(verifiedElevation) 
-                    initialMsa600Coordinates = mySetup.myPav.get_probe_coordinates_relative_to_home()
-                    print(initialMsa600Coordinates)
+                    
 
 
 
 
                     # MOVE SCOPE TO EXACT POSITION
+                    initialMsa600Coordinates = mySetup.myPav.get_probe_coordinates_relative_to_home()
+                    print(initialMsa600Coordinates)
                     print("move scope")
                     imageName = "image_measurement_{}".format(measurementIndex)
 
@@ -127,14 +134,14 @@ def main():
                     mySetup.myPav.move_chuck_to_contact()
 
                     # SELECT THE MSA-600 SETTINGS
-                    mySetup.myMsa600.change_settings(settingsPath = settingsPath)
+                    mySetup.myMsa600.change_settings(settingsPath = settingsFile)
 
                     # SELECT THE SETTINGS FOR THE VOLTAGE ACTUATION
                     mySetup.myAwgExt.set_sweep_settings(startFrequency=1000, stopFrequency=25000000, sweepTime=0.028, voltage= 1)
+                    mySetup.myAwgExt.output_off()
 
                     # START SCAN AND SAVE RESULTS
-                    resultspath = os.path.join(resultsDirectory, fileNameSVD)
-                    mySetup.myMsa600.send_scan_request_and_trigger_awg(resultspath, myAwgExt= mySetup.myAwgExt, timeLimitForResponse= 20, averaging = averaging, triggerOpenTime=1)
+                    mySetup.myMsa600.send_scan_request_and_trigger_awg(resultspath = svdFile, myAwgExt= mySetup.myAwgExt, timeLimitForResponse= 20, averageCount = averageCount, measurementPointsCount = measurementPointsCount ,sampleTime = sampleTime)
 
                     # # DETERMINE THE RESONANCE FREQUENCY FROM THE MEASUREMENT DATA
                     # mySVD = Svd(resultsDirectory = resultsDirectory,  filename = fileNameSVD)
@@ -147,7 +154,7 @@ def main():
                         "RF": resonananceFrequency,
                     }
                     
-                    myPerformedMeasurements.save_measurement_datas(measurementIndex, measurementData, name=experimentName)
+                    myPerformedMeasurements.save_measurement_datas(measurementIndex, measurementData, name=measurementName)
 
                 else:
                     print("measurement Ignored because Structure not in Range")
@@ -170,22 +177,18 @@ if __name__ == "__main__":
     main()
 
 
-#TODO: get all data from msa-settings info file
 #TODO: email polytec with error en question set settings
-#TODO: remaining time estimate
 #TODO: get awg inputs from userInput
-#TODO: mySetup as class
+#TODO: remaining time estimate
 #TODO: select measurements based on measurement index
 #TODO: simplify code: one rule for "FOR ALL MEASUREMENTS" for loop
-#TODO: more natural Wafermap input (1-23 in excel)
-
-
-
+#TODO: mySetup as class
 
 #TODO: computer vision: add rotation
 #TODO: computer vision: align: set constants
 #TODO: computer vision: autofocus
 
+#TODO: more natural Wafermap input (1-23 in excel)
 #TODO: implement multiple scan points: scan point indexes in excell file
 #TODO: tutorial code sharing (first check Conda)
 #TODO: Fré Quality factor for RF

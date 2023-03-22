@@ -10,15 +10,31 @@ class Svd:
         self.filePath = os.path.join(resultsDirectory, filename)
         self.polytecFile = Dispatch('PolyFile.PolyFile')
         self.polytecFile.open(self.filePath)
-    
-    def get_svd_info(self):
-        self.Infos = self.polytecFile.Infos
+        self.info = self.polytecFile.Infos
 
-        if not self.Infos.AcquisitionInfoModes.ActiveMode and self.Infos.AcquisitionInfoModes.ActiveProperties.HasTimeProperties:
-            return {'Infos':self.Infos, 'Domain':'Time'}
-        elif self.Infos.AcquisitionInfoModes.ActiveMode and self.Infos.AcquisitionInfoModes.ActiveProperties.HasFftProperties:
-            return {'Infos':self.Infos, 'Domain':'FFT'}
+        # AMOUNT OF MEASUREMENT POINTS        
+        pointDomains = self.polytecFile.GetPointDomains()
+        if self.info['Domain'] == 'FFT':
+            pointDomain = pointDomains.Item('FFT')
+            self.measurementPoints = pointDomain.dataPoints.len()
+        if self.info['Domain'] == 'Time':
+            pointDomain = pointDomains.Item('Time')
+            self.measurementPoints = pointDomain.dataPoints.len()
+
+            
+    def get_svd_info(self):
+        if not self.info.AcquisitionInfoModes.ActiveMode and self.info.AcquisitionInfoModes.ActiveProperties.HasTimeProperties:
+            return {'Infos':self.info, 'Domain':'Time'}
+        elif self.info.AcquisitionInfoModes.ActiveMode and self.info.AcquisitionInfoModes.ActiveProperties.HasFftProperties:
+            return {'Infos':self.info, 'Domain':'FFT'}
+        
+
     
+    def get_scan_settings(self):
+        settingsFile = self.polytecFile.Infos
+        print("Scan settings:" + str(settingsFile))
+
+
     # gets array with frequency and velocity for each point: points go from 1 to amount of points
     def get_fft_data(self, point = 1):
 

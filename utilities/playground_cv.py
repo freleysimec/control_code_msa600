@@ -46,7 +46,7 @@ print("probeCoordinates: " + str(initialMsa600Coordinates))
 fileNameSVD = "otherImage.svd"
 resultspath = os.path.join(resultsDirectory, fileNameSVD)
 requests = ["SCAN_AND_SAVE," + str(resultspath)]
-mySetup.myMsa600.send_scan_request_and_trigger_awg(requests, myAwgExt= mySetup.myAwgExt, timeLimitForResponse= 20, averaging = averaging, triggerOpenTime=1)
+mySetup.myMsa600.send_scan_request_and_trigger_awg(requests, myAwgExt= mySetup.myAwgExt, timeLimitForResponse= 20, averageCount = averaging, triggerOpenTime=1)
 
 # get position image from scope
 mySVD = Svd(resultsDirectory = projectDirectory,  filename = fileNameSVD)

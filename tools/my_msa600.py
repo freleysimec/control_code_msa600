@@ -39,10 +39,7 @@ class MSA600(object):
         
         return response
 
-
-
-
-    def send_scan_request_and_trigger_awg(self,resultspath, myAwgExt:  AWGclass, sampleTime, averaging =1, points = 1,  timeLimitForResponse = 10, triggerWaitTime = 2):
+    def send_scan_request_and_trigger_awg(self,resultspath, myAwgExt:  AWGclass, sampleTime, averageCount =1, measurementPointsCount = 1,  timeLimitForResponse = 10, triggerWaitTime = 2):
         response = ""
         requests = ["SCAN_AND_SAVE," + str(resultspath)]
 
@@ -54,11 +51,11 @@ class MSA600(object):
         
         ## Repeat for all points: 
         time.sleep(triggerWaitTime)
-        for i in range(points):
+        for i in range(measurementPointsCount):
             print("point: "+str(i+1))
             ## TRIGGER AWG AFTER 1.5 S (AcquisitionSlave.bas loops every second)
             # trigger the amount of averaging and wait for at least 
-            for i in range(averaging):
+            for i in range(averageCount):
                 myAwgExt.awg_trigger(triggerOpenTime=sampleTime)
                 # time.sleep(sampleTime)
         # for i in range(points):
@@ -81,9 +78,6 @@ class MSA600(object):
             print("Timeout: No response of the MSA600 received within " + str(timeLimitForResponse) + " seconds." + "Did you forget to run the macro?")
         
         return response
-    
-    
-    
     
     def change_settings(self, settingsPath):
         requests = ["CHANGE_SETTINGS," + str(settingsPath)]

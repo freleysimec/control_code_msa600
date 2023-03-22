@@ -9,7 +9,7 @@ from svd_class import*
 
 
 projectLabel = "20230316_DEFN"
-projectFolder = r"D:\Fre\20230316_DEFN"
+projectFolder = r"C:\Users\leys40\OneDrive - imec\_MEASUREMENTS\CANOPUS\20230316_DEFN"
 points = 10
 
 
@@ -125,7 +125,7 @@ def main():
                     path = os.path.join(imagesDirectory, performedMeasurementName + '.png')
                     plt.savefig(path)
 
-                    relativePath =  "images\\" + performedMeasurementName + '.png'
+                    relativePath =  "results\\" + "images\\" + performedMeasurementName + '.png'
 
                     myPerformedMeasurements.save_link_to_data(index = measurementIndex, columnLabel = "OVERVIEW", linkName = "image Link", path= relativePath)
 
@@ -145,7 +145,7 @@ def main():
                 else: 
                     print("no svd file found for measurement: " + str(measurementIndex))
 
-            break  #only one plot
+            # break  #only one plot
 
 
 if __name__ == "__main__":

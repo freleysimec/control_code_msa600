@@ -1,4 +1,3 @@
-from imports import *
 import os
 import time
 import my_setup as mySetup
@@ -11,9 +10,9 @@ projectLabel = "20230316_DEFN"
 projectFolder = r"D:\Fre\20230316_DEFN"
 # averaging = 1
 # points = 1
-averaging = 20
-points = 10
-sampleTime = 0.256   #s
+# averaging = 20
+# points = 10
+# sampleTime = 0.256   #s
 
 
 
@@ -81,7 +80,7 @@ def main():
             mySetup.myAwgExt.output_off()
             
             # START SCAN AND SAVE RESULTS
-            mySetup.myMsa600.send_scan_request_and_trigger_awg(resultspath = svdFile, myAwgExt= mySetup.myAwgExt, timeLimitForResponse= 20, averaging = averaging, points = points ,sampleTime = sampleTime)
+            mySetup.myMsa600.send_scan_request_and_trigger_awg(resultspath = svdFile, myAwgExt= mySetup.myAwgExt, timeLimitForResponse= 20, averageCount = averaging, measurementPointsCount = points ,sampleTime = sampleTime)
             
             ## SAVE PERFORMED MEASUREMENT
             measurementData = {
@@ -105,20 +104,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-#TODO: computer vision: autofocus
-#TODO: computer vision: align: set constants
-#TODO: get all data from msa-settings info file
-#TODO: improve averaging: from settings file
-#TODO: implement multiple scan points: scan points in excell file
-#TODO: email polytec with error en question set settings
-
-#TODO: remaining time estimate
-#TODO: tutorial code sharing (first check Conda)
-#TODO: get awg inputs from userInput
-#TODO: more natural Wafermap input (1-23 in excel)
-#TODO: mySetup as class
-#TODO: simplify code: one rule for "FOR ALL MEASUREMENTS" for loop
-#TODO: Fré Quality factor for RF
-#TODO: select measurements based on measurement index
