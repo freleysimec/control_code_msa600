@@ -1,5 +1,5 @@
 import keyboard as keyboard
-import my_setup as mySetup
+import my_setup_class as mySetup
 import my_excel_handler as myExcelHandler
 
 def save_coordinates_of_die_home_point_and_msa600_elevation(dieIndex, myVerifiedWaferMap: myExcelHandler.VerifiedWaferMap):

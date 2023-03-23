@@ -23,6 +23,12 @@ class AWGclass(object):
         self.handler.close()
         return self.respo
 
+    def change_settings(self, settings):
+        if settings['type'] == 'sweep':
+            self.set_sweep_settings(settings['voltage'], settings['startFrequency'], settings['stopFrequency'], settings['sweepTime'])
+        elif settings['type'] == 'sine':
+            self.set_sine_settings(settings['peakToPeakAmplitude'], settings['frequency'], settings['offset'])
+
     def set_sweep_settings(self, voltage, startFrequency, stopFrequency, sweepTime):
         
         instr = self.RM.open_resource(self.port)
@@ -39,6 +45,7 @@ class AWGclass(object):
         instr.write('SOUR1:SWE:TIME ' + str(sweepTime))         #3.2
         
         instr.close()
+        self.output_off()
         
     def set_sine_settings(self, peakToPeakAmplitude, frequency, offset = 0):
         
@@ -56,7 +63,8 @@ class AWGclass(object):
         time.sleep(1)
 
         instr.close()
-
+        self.output_off()
+        
     def output_off(self):
         instr = self.RM.open_resource(self.port)
         time.sleep(0.5)

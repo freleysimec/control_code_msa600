@@ -1,4 +1,4 @@
-import my_setup as mySetup
+import my_setup_class as mySetup
 import time
 import keyboard
 

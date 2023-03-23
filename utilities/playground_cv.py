@@ -3,7 +3,7 @@ import time
 import pandas as pd
 import numpy as np
 import keyboard as keyboard
-import my_setup as mySetup
+import my_setup_class as mySetup
 import os
 import sys
 import numpy as np

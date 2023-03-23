@@ -1,6 +1,6 @@
 import os
 import time
-import my_setup as mySetup
+import my_setup_class as mySetup
 from post_processing.svd_class import*
 
 

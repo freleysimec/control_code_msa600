@@ -1,6 +1,6 @@
 ## FRE LEYS OKT 2022 & FEB 2023
 import time
-import my_setup as mySetup
+from my_setup_class import MySetup
 import my_methods as myMethods
 import my_excel_handler as myExcelHandler
 import os
@@ -9,7 +9,7 @@ import sys
 
 projectLabel = "testje"
 projectFolder = r"F:\testje"
-mySetup.usedTools = ["PAV", "MSA_600"]
+usedTools = ["PAV", "MSA_600"]
 
 
 # projectLabel = "playground"
@@ -29,6 +29,7 @@ def main():
         sys.exit()
 
     ## INITIALISE THE SETUP
+    mySetup = MySetup(usedTools = usedTools)
     mySetup.initiate()
     mySetup.myPav.move_chuck_separation()
 

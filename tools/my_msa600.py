@@ -39,7 +39,7 @@ class MSA600(object):
         
         return response
 
-    def send_scan_request_and_trigger_awg(self,resultspath, myAwgExt:  AWGclass, sampleTime, averageCount =1, measurementPointsCount = 1,  timeLimitForResponse = 10, triggerWaitTime = 2):
+    def send_scan_request_and_trigger_awg(self,resultspath, myAwgExt:  AWGclass, myMsaAquisitionSettings,  timeLimitForResponse = 10, triggerWaitTime = 2):
         response = ""
         requests = ["SCAN_AND_SAVE," + str(resultspath)]
 
@@ -51,12 +51,12 @@ class MSA600(object):
         
         ## Repeat for all points: 
         time.sleep(triggerWaitTime)
-        for i in range(measurementPointsCount):
+        for i in range(myMsaAquisitionSettings.measurementPointsCount):
             print("point: "+str(i+1))
             ## TRIGGER AWG AFTER 1.5 S (AcquisitionSlave.bas loops every second)
             # trigger the amount of averaging and wait for at least 
-            for i in range(averageCount):
-                myAwgExt.awg_trigger(triggerOpenTime=sampleTime)
+            for i in range(myMsaAquisitionSettings.averageCount):
+                myAwgExt.awg_trigger(triggerOpenTime=myMsaAquisitionSettings.sampleTime)
                 # time.sleep(sampleTime)
         # for i in range(points):
         #     print("point: "+str(i+1))
@@ -79,6 +79,6 @@ class MSA600(object):
         
         return response
     
-    def change_settings(self, settingsPath):
-        requests = ["CHANGE_SETTINGS," + str(settingsPath)]
+    def change_settings(self, settingsFile):
+        requests = ["CHANGE_SETTINGS," + str(settingsFile)]
         self.send_requests(requests, timeLimitForResponse= 20)

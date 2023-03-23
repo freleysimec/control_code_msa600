@@ -1,6 +1,7 @@
 import os
 import time
-import my_setup as mySetup
+from msa_aquisition_settings_class import MsaAquisitionSettings
+from  my_setup_class import MySetup
 from post_processing.svd_class import*
 import utilities.my_computer_vision as myComputerVision
 import my_excel_handler as myExcelHandler
@@ -8,6 +9,9 @@ import sys
 
 projectLabel = "20230316_DEFN"
 projectFolder = r"D:\Fre\20230316_DEFN"
+usedTools = ["PAV", "AWG_EXT", "MSA_600"]
+
+
 # averaging = 1
 # points = 1
 # averaging = 20
@@ -22,6 +26,7 @@ projectFolder = r"D:\Fre\20230316_DEFN"
 def main():
 
     ## INITIALISE SETUP & TOOLS
+    mySetup = MySetup(usedTools = usedTools)
     mySetup.initiate()
     time.sleep(1)
     mySetup.myPav.move_chuck_separation()
@@ -53,12 +58,11 @@ def main():
     for measurementIndex, measurement in myMeasurements.iterrows():
         if not measurementIndex == "abreviation":    
 
-            # MOVE CHUCK TO POI IF DIE NOT IGNORED
-            dieIndex = measurement["die index"]
-            dieCoordinates = myVerifiedWaferMap.get_coordinates_of_die(dieIndex)
-            theta = myVerifiedWaferMap.get_theta(dieIndex)
-            mySetup.myPav.move_theta(theta = theta)
-            mySetup.myPav.move_chuck_relative_to_home( -dieCoordinates[0], -dieCoordinates[1])
+            
+            # GET MSA-600 SETTINGS
+            settingsFileName = myUserInput.get_settings_file(measurementIndex=measurementIndex)
+            settingsFile = os.path.join(settingsDirectory, settingsFileName)
+            myMsaAquisitionSettings = MsaAquisitionSettings(settingsDirectory, settingsFile)    
 
             # GET PARAMETERS
             measurementName = myUserInput.get_experiment_filename(measurementIndex)
@@ -67,20 +71,23 @@ def main():
             settingsFileName = myUserInput.get_settings_file(measurementIndex=measurementIndex)
             settingsFile = os.path.join(settingsDirectory, settingsFileName)
 
+            # MOVE CHUCK TO POI
+            dieIndex = measurement["die index"]
+            dieCoordinates = myVerifiedWaferMap.get_coordinates_of_die(dieIndex)
+            theta = myVerifiedWaferMap.get_theta(dieIndex)
+            mySetup.myPav.move_theta(theta = theta)
+            mySetup.myPav.move_chuck_relative_to_home( -dieCoordinates[0], -dieCoordinates[1])
+
 
 
             ## PERFORM MEASUREMENT 
 
             # SELECT THE MSA-600 SETTINGS
-            mySetup.myMsa600.change_settings(settingsPath = settingsFile)
-
-
-            # # SELECT THE SETTINGS FOR THE VOLTAGE ACTUATION
-            # mySetup.myAwgExt.set_sweep_settings(startFrequency=1000, stopFrequency=25000000, sweepTime=0.028, voltage= 1)
+            mySetup.myMsa600.change_settings(settingsFile = settingsFile)
             mySetup.myAwgExt.output_off()
             
             # START SCAN AND SAVE RESULTS
-            mySetup.myMsa600.send_scan_request_and_trigger_awg(resultspath = svdFile, myAwgExt= mySetup.myAwgExt, timeLimitForResponse= 20, averageCount = averaging, measurementPointsCount = points ,sampleTime = sampleTime)
+            mySetup.myMsa600.send_scan_request_and_trigger_awg(resultspath = svdFile, myAwgExt= mySetup.myAwgExt, timeLimitForResponse= 20, myMsaAquisitionSettings =myMsaAquisitionSettings)
             
             ## SAVE PERFORMED MEASUREMENT
             measurementData = {

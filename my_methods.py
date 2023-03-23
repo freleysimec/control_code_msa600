@@ -1,8 +1,8 @@
-import my_setup as mySetup
+from my_setup_class import MySetup
 import my_excel_handler as myExcelHandler
 
 
-def save_coordinates_and_msa600_elevation_semi_auto(dieIndex, myVerifiedWaferMap: myExcelHandler.VerifiedWaferMap):
+def save_coordinates_and_msa600_elevation_semi_auto(dieIndex, myVerifiedWaferMap: myExcelHandler.VerifiedWaferMap, mySetup: MySetup):
     textInput = input("Enter 't' if Coordinates and Focus are OK or 'i' to ignore the die: ")
 
     if(textInput == 't'):
@@ -22,7 +22,7 @@ def save_coordinates_and_msa600_elevation_semi_auto(dieIndex, myVerifiedWaferMap
         print('index: ' +str(dieIndex))
         myVerifiedWaferMap.save_die_coordinates(index= dieIndex, coordinates=["IGNORED","IGNORED"])
 
-def save_chuck_position_and_msa600_elevation_manual(myVerifiedWaferMap: myExcelHandler.VerifiedWaferMap):
+def save_chuck_position_and_msa600_elevation_manual(myVerifiedWaferMap: myExcelHandler.VerifiedWaferMap, mySetup: MySetup):
     textInput = input("Enter 't' if Coordinates and Focus are OK or 'f' to finish: ")
 
     if(textInput == 't'):
@@ -47,7 +47,7 @@ def save_chuck_position_and_msa600_elevation_manual(myVerifiedWaferMap: myExcelH
 def anotate_die_ignored(dieIndex, myVerifiedWaferMap: myExcelHandler.VerifiedWaferMap):
     myVerifiedWaferMap.save_die_ignored(index= dieIndex)
 
-def get_and_save_coordinates_of_center_of_chuck(myVerifiedWaferMap: myExcelHandler.VerifiedWaferMap):
+def get_and_save_coordinates_of_center_of_chuck(myVerifiedWaferMap: myExcelHandler.VerifiedWaferMap, mySetup: MySetup):
     chuckCoordinates = mySetup.myPav.get_chuck_coordinates()
     myVerifiedWaferMap.save_center_coordinates(coordinates=chuckCoordinates)
     x = float(chuckCoordinates[0])

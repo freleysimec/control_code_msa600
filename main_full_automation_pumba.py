@@ -1,6 +1,7 @@
 import os
 import time
-import my_setup as mySetup
+from msa_aquisition_settings_class import MsaAquisitionSettings
+from my_setup_class import MySetup
 from post_processing.svd_class import*
 import my_excel_handler as myExcelHandler
 import sys
@@ -8,34 +9,42 @@ import sys
 projectLabel = "testje"
 projectFolder = r"F:\testje"
 
+
+
+
 settingsFileFrequency = "pumba_frequency.set"
 settingsFileAmplitude = "pumba_amplitude.set"
-averaging = 10
+# averaging = 10
 
 ### NO TOUCHY TOUCHY ###------------------------------------------------------------
 
 def main():
 
-    ## INITIALISE SETUP & TOOLS
-    mySetup.initiate()
-    time.sleep(1)
-    mySetup.myPav.move_chuck_align()
-
     ## INITIALISE FILES
-    # controlCodeDirectory = os.getcwd()
     projectDirectory = os.path.join(projectFolder)
     resultsDirectory = os.path.join(projectDirectory, "results")
     settingsDirectory = os.path.join(projectDirectory, "msa600 settings")
+    imagesDirectory = os.path.join(resultsDirectory, "images")
 
     if not os.path.exists(projectDirectory):
         print("Can't find project directory: " + projectDirectory)
         sys.exit()
     if not os.path.exists(resultsDirectory):
         os.makedirs(resultsDirectory)
+    if not os.path.exists(imagesDirectory):
+        os.makedirs(imagesDirectory)
 
     myUserInput = myExcelHandler.UserInput(projectLabel=projectLabel, projectDirectory=projectDirectory)
     myVerifiedWaferMap = myExcelHandler.VerifiedWaferMap(projectLabel=projectLabel, projectDirectory=projectDirectory)
     myPerformedMeasurements = myExcelHandler.MeasurementOutput(projectLabel = projectLabel, projectDirectory=projectDirectory)
+
+
+    ## INITIALISE SETUP & 
+    usedTools = myUserInput.get_used_tools()
+    mySetup = MySetup(usedTools = usedTools)
+    mySetup.initiate()
+    time.sleep(1)
+    mySetup.myPav.move_chuck_align()
 
     ## INITIATE MEASUREMENT
     try:
@@ -54,7 +63,6 @@ def main():
             # MOVE CHUCK TO POI IF DIE NOT IGNORED
             dieIndex = measurement["die index"]
             dieCoordinates = myVerifiedWaferMap.get_coordinates_of_die(dieIndex)
-            verifiedElevation = myVerifiedWaferMap.get_verified_msa600_elevation_at_die(dieIndex)
             
             if not dieCoordinates[0] == "IGNORED":
                 
@@ -71,20 +79,36 @@ def main():
                 xStructureRelativeToHome = dieCoordinates[0] + structureCoordinatesRelativeToDie[0]
                 yStructureRelativeToHome = dieCoordinates[1] + structureCoordinatesRelativeToDie[1]
 
-                #if structure in range
+
+
+                ## FOR ALL MEASUREMENTS IN RANGE
                 inRange = xStructureRelativeToCenter > mySetup.myPav.XMIN and xStructureRelativeToCenter < mySetup.myPav.XMAX and yStructureRelativeToCenter > mySetup.myPav.YMIN and yStructureRelativeToCenter < mySetup.myPav.YMAX
                 inDiameter = (xStructureRelativeToCenter**2 + yStructureRelativeToCenter**2) < 9025000000
                 if inRange and inDiameter:
+                    
+                    # GET PAV SETTINGS
+                    verifiedElevation = myVerifiedWaferMap.get_verified_msa600_elevation_at_die(dieIndex)
+                    #theta = myVerifiedWaferMap.get_theta(dieIndex)
 
-                    # GET FILENAMES
-                    experimentName = myUserInput.get_experiment_filename(measurementIndex)
-                    fileNameResonanceFrequencySVD = experimentName + "_resonanceFrequency.svd"
-                    fileNameResonanceAmplitudeSVD = experimentName + "_amplitude.svd"
+                    # GET MSA-600 SETTINGS
+                    # settingsFileName = myUserInput.get_settings_file(measurementIndex=measurementIndex)
+                    # settingsFile = os.path.join(settingsDirectory, settingsFileName)
+                    settingsFileFrequency = os.path.join(settingsDirectory, settingsFileFrequency)
+                    myMsaAquisitionSettingsFrequency = MsaAquisitionSettings(settingsDirectory, settingsFileFrequency)
+                    settingsFileAmplitude = os.path.join(settingsDirectory, settingsFileAmplitude)
+                    myMsaAquisitionSettingsAmplitude = MsaAquisitionSettings(settingsDirectory, settingsFileAmplitude)
+                    
+                    # GET AWG_EXT SETTINGS
+                    awgExtSettings = myUserInput.get_awg_ext_settings(measurementIndex=measurementIndex)
+
+                    # GET SVD NAMES
+                    measurementName = myUserInput.get_experiment_filename(measurementIndex)
+                    fileNameResonanceFrequencySVD = measurementName + "_resonanceFrequency.svd"
+                    fileNameResonanceAmplitudeSVD = measurementName + "_amplitude.svd"
                 
-                    # Move chuck to sum of die AND structure coordinates (opgelet, verified wafer is chuck coordinates en structure coordinates tegengestelde assen)
+                    # MOVE CHUCK TO POI
+                    # mySetup.myPav.move_theta(theta = theta)
                     mySetup.myPav.move_chuck_relative_to_home( -xStructureRelativeToHome, -yStructureRelativeToHome)
-
-                    # Move MSA-600 to focus height
                     mySetup.myPav.move_probe_z(verifiedElevation) 
 
                     # PERFORM MEASUREMENT 
@@ -93,35 +117,27 @@ def main():
                     mySetup.myPav.move_chuck_to_contact()
 
                     # SELECT THE MSA-600 SETTINGS
-                    settingsPath = os.path.join(settingsDirectory, settingsFileFrequency)
-                    requests = ["CHANGE_SETTINGS," + str(settingsPath)]
-                    mySetup.myMsa600.send_requests(requests, timeLimitForResponse= 20)
+                    mySetup.myMsa600.change_settings(settingsFile = settingsFileFrequency)
+                    mySetup.myAwgExt.change_settings (settings = awgExtSettings[0])
 
-                    # SELECT THE SETTINGS FOR THE VOLTAGE ACTUATION
-                    mySetup.myAwgExt.set_sweep_settings(startFrequency=1000, stopFrequency=25000000, sweepTime=0.028, voltage= 1)
-
-                    # START SCAN AND SAVE RESULTS
-                    resultspath = os.path.join(resultsDirectory, fileNameResonanceFrequencySVD)
-                    requests = ["SCAN_AND_SAVE," + str(resultspath)]
-                    mySetup.myMsa600.send_scan_request_and_trigger_awg(requests, myAwgExt= mySetup.myAwgExt, timeLimitForResponse= 20, averageCount = averaging, triggerOpenTime=1)
+                    # START FREQUENCY SCAN AND SAVE RESULTS
+                    mySetup.myMsa600.send_scan_request_and_trigger_awg(resultspath = fileNameResonanceFrequencySVD, myAwgExt= mySetup.myAwgExt, timeLimitForResponse= 20, myMsaAquisitionSettings =myMsaAquisitionSettingsFrequency)
 
                     # DETERMINE THE RESONANCE FREQUENCY FROM THE MEASUREMENT DATA
                     mySVD = Svd(resultsDirectory = resultsDirectory,  filename = fileNameResonanceFrequencySVD)
                     resonananceFrequency = mySVD.get_resonance_frequency(point=1,fMin=1000000, fMax=24000000)
                     print("resonananceFrequency: " + str(resonananceFrequency))
                     
-                    # SELECT THE MSA-600 SETTINGS
-                    settingsPath = os.path.join(settingsDirectory, settingsFileAmplitude)
-                    requests = ["CHANGE_SETTINGS," + str(settingsPath)]
-                    mySetup.myMsa600.send_requests(requests, timeLimitForResponse= 20)
 
-                    # SELECT THE SETTINGS FOR THE VOLTAGE ACTUATION
-                    mySetup.myAwgExt.set_sine_settings(peakToPeakAmplitude= 3,  frequency=resonananceFrequency)
+
+                    ### AMPLITUDE SCAN
+
+                    # SELECT THE MSA-600 SETTINGS
+                    mySetup.myMsa600.change_settings(settingsFile = settingsFileAmplitude)
+                    mySetup.myAwgExt.change_settings (settings = awgExtSettings[1])
                     
                     # START SCAN AND SAVE RESULTS
-                    resultspath = os.path.join(resultsDirectory, fileNameResonanceAmplitudeSVD)
-                    requests = ["SCAN_AND_SAVE," + str(resultspath)]
-                    mySetup.myMsa600.send_scan_request_and_trigger_awg(requests,  myAwgExt= mySetup.myAwgExt, timeLimitForResponse= 20)
+                    mySetup.myMsa600.send_scan_request_and_trigger_awg(resultspath = fileNameResonanceFrequencySVD, myAwgExt= mySetup.myAwgExt, timeLimitForResponse= 20, myMsaAquisitionSettings =myMsaAquisitionSettingsAmplitude)
 
                     # DETERMINE THE DISPLACEMENT AMPLITUDE FROM THE MEASUREMENT DATA
                     mySVD = Svd(resultsDirectory = resultsDirectory,  filename = fileNameResonanceAmplitudeSVD)
@@ -139,7 +155,7 @@ def main():
                         "D/V": relativeDisplacementAmplitude,
                     }
                     
-                    myPerformedMeasurements.save_measurement_datas(measurementIndex, measurementData, name=experimentName)
+                    myPerformedMeasurements.save_measurement_datas(measurementIndex, measurementData, name=measurementName)
 
                 else:
                     print("measurement Ignored because Structure not in Range")

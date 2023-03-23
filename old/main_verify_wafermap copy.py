@@ -1,7 +1,7 @@
 ## FRE LEYS OKT 2022 & FEB 2023
 
 import time
-import my_setup as mySetup
+import my_setup_class as mySetup
 import my_methods as myMethods
 import my_excel_handler as myExcelHandler
 import numpy as np

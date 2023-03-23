@@ -1,28 +1,20 @@
 import os
 import time
-import my_setup as mySetup
+from my_setup_class import MySetup
 from msa_aquisition_settings_class import MsaAquisitionSettings
 from post_processing.svd_class import*
 import utilities.my_computer_vision as myComputerVision
 import my_excel_handler as myExcelHandler
 import sys
 
-projectLabel = "20230316_DEFN"
-projectFolder = r"C:\Users\leys40\OneDrive - imec\_MEASUREMENTS\CANOPUS\20230316_DEFN"
-
+projectLabel = "pumba1_oval"
+projectFolder = r"C:\Users\leys40\OneDrive - imec\_MEASUREMENTS\PUMBA\pumba1_oval"
 
 ### NO TOUCHY TOUCHY ###------------------------------------------------------------
 
 def main():
 
-    ## INITIALISE SETUP & TOOLS
-    mySetup.initiate()
-    time.sleep(1)
-    mySetup.myPav.move_chuck_align()
-    mySetup.myPav.move_probe_relative_to_home(0,0)
-
     ## INITIALISE FILES
-    # controlCodeDirectory = os.getcwd()
     projectDirectory = os.path.join(projectFolder)
     resultsDirectory = os.path.join(projectDirectory, "results")
     settingsDirectory = os.path.join(projectDirectory, "msa600 settings")
@@ -39,6 +31,18 @@ def main():
     myUserInput = myExcelHandler.UserInput(projectLabel=projectLabel, projectDirectory=projectDirectory)
     myVerifiedWaferMap = myExcelHandler.VerifiedWaferMap(projectLabel=projectLabel, projectDirectory=projectDirectory)
     myPerformedMeasurements = myExcelHandler.MeasurementOutput(projectLabel = projectLabel, projectDirectory=projectDirectory)
+
+
+    ## INITIALISE SETUP & TOOLS
+    usedTools = myUserInput.get_used_tools()
+    mySetup = MySetup(usedTools = usedTools)
+    mySetup.initiate()
+    time.sleep(1)
+    if usedTools.__contains__("PAV"):  mySetup.myPav.move_chuck_align()
+    if usedTools.__contains__("PAV"):  mySetup.myPav.move_probe_relative_to_home(0,0)
+
+
+
 
     ## INITIATE MEASUREMENT
     try:
@@ -57,7 +61,7 @@ def main():
             # MOVE CHUCK TO POI IF DIE NOT IGNORED
             dieIndex = measurement["die index"]
             dieCoordinates = myVerifiedWaferMap.get_coordinates_of_die(dieIndex)
-
+            verifiedElevation = myVerifiedWaferMap.get_verified_msa600_elevation_at_die(dieIndex)
 
             if (not dieCoordinates[0] == "IGNORED"):
                 
@@ -74,29 +78,31 @@ def main():
                 xStructureRelativeToHome = dieCoordinates[0] + structureCoordinatesRelativeToDie[0]
                 yStructureRelativeToHome = dieCoordinates[1] + structureCoordinatesRelativeToDie[1]
 
-                #if structure in range
+
+
+                ## FOR ALL MEASUREMENTS IN RANGE
                 inRange = xStructureRelativeToCenter > mySetup.myPav.XMIN and xStructureRelativeToCenter < mySetup.myPav.XMAX and yStructureRelativeToCenter > mySetup.myPav.YMIN and yStructureRelativeToCenter < mySetup.myPav.YMAX
                 inDiameter = (xStructureRelativeToCenter**2 + yStructureRelativeToCenter**2) < 9025000000
                 if inRange and inDiameter:
                     
-                    # GET PARAMETERS
+                    # GET PAV SETTINGS
                     verifiedElevation = myVerifiedWaferMap.get_verified_msa600_elevation_at_die(dieIndex)
                     theta = myVerifiedWaferMap.get_theta(dieIndex)
 
-                    # GET SETTINGS
+                    # GET MSA-600 SETTINGS
                     settingsFileName = myUserInput.get_settings_file(measurementIndex=measurementIndex)
                     settingsFile = os.path.join(settingsDirectory, settingsFileName)
                     myMsaAquisitionSettings = MsaAquisitionSettings(settingsDirectory, settingsFile)
-                    averageCount = myMsaAquisitionSettings.averageCount
-                    measurementPointsCount = myMsaAquisitionSettings.measurementPointsCount
-                    sampleTime = myMsaAquisitionSettings.sampleTime
+                
+                    # GET AWG_EXT SETTINGS
+                    awgExtSettings = myUserInput.get_awg_ext_settings(measurementIndex=measurementIndex)
 
                     # GET SVD NAME
                     measurementName = myUserInput.get_experiment_filename(measurementIndex)
                     svdFileName = measurementName + ".svd"
                     svdFile = os.path.join(resultsDirectory, svdFileName)
 
-                    # Position Chuck
+                    # MOVE CHUCK TO POI
                     mySetup.myPav.move_theta(theta = theta)
                     mySetup.myPav.move_chuck_relative_to_home( -xStructureRelativeToHome, -yStructureRelativeToHome)
                     mySetup.myPav.move_probe_z(verifiedElevation) 
@@ -105,7 +111,7 @@ def main():
 
 
 
-                    # MOVE SCOPE TO EXACT POSITION
+                    # MOVE SCOPE TO EXACT POI
                     initialMsa600Coordinates = mySetup.myPav.get_probe_coordinates_relative_to_home()
                     print(initialMsa600Coordinates)
                     print("move scope")
@@ -128,27 +134,24 @@ def main():
 
 
 
-                    # PERFORM MEASUREMENT 
-                    print("x postion: " + str(dieCoordinates[0]))
-                    print("y postion: " + str(dieCoordinates[1]))
+                    
+
+                    ## SELECT THE TOOL SETTINGS
+                    mySetup.myMsa600.change_settings(settingsFile = settingsFile)
+                    mySetup.myAwgExt.change_settings (settings = awgExtSettings[0])
+
+                    ## START MEASUREMENT 
                     mySetup.myPav.move_chuck_to_contact()
 
-                    # SELECT THE MSA-600 SETTINGS
-                    mySetup.myMsa600.change_settings(settingsPath = settingsFile)
+                    ## START SCAN AND SAVE RESULTS
+                    mySetup.myMsa600.send_scan_request_and_trigger_awg(resultspath = svdFile, myAwgExt= mySetup.myAwgExt, timeLimitForResponse= 20, myMsaAquisitionSettings =myMsaAquisitionSettings)
 
-                    # SELECT THE SETTINGS FOR THE VOLTAGE ACTUATION
-                    mySetup.myAwgExt.set_sweep_settings(startFrequency=1000, stopFrequency=25000000, sweepTime=0.028, voltage= 1)
-                    mySetup.myAwgExt.output_off()
-
-                    # START SCAN AND SAVE RESULTS
-                    mySetup.myMsa600.send_scan_request_and_trigger_awg(resultspath = svdFile, myAwgExt= mySetup.myAwgExt, timeLimitForResponse= 20, averageCount = averageCount, measurementPointsCount = measurementPointsCount ,sampleTime = sampleTime)
-
-                    # # DETERMINE THE RESONANCE FREQUENCY FROM THE MEASUREMENT DATA
+                    ## DETERMINE THE RESONANCE FREQUENCY FROM THE MEASUREMENT DATA
                     # mySVD = Svd(resultsDirectory = resultsDirectory,  filename = fileNameSVD)
                     # resonananceFrequency = mySVD.get_resonance_frequency(point=1,fMin=1000000, fMax=24000000)
                     # print("resonananceFrequency: " + str(resonananceFrequency))
                     
-                    ## SAVE performed measurement in "measurements done file" (links measurement number with MSA600 file number)
+                    ## SAVE PROCESSED MEASUREMENT DATA
                     resonananceFrequency= 19
                     measurementData = {
                         "RF": resonananceFrequency,
@@ -176,18 +179,16 @@ def main():
 if __name__ == "__main__":
     main()
 
-
+#TODO: computer vision: align: set constants
+#TODO: Pumba: one line per SVD
 #TODO: email polytec with error en question set settings
-#TODO: get awg inputs from userInput
 #TODO: remaining time estimate
 #TODO: select measurements based on measurement index
 #TODO: simplify code: one rule for "FOR ALL MEASUREMENTS" for loop
-#TODO: mySetup as class
+
 
 #TODO: computer vision: add rotation
-#TODO: computer vision: align: set constants
 #TODO: computer vision: autofocus
-
 #TODO: more natural Wafermap input (1-23 in excel)
 #TODO: implement multiple scan points: scan point indexes in excell file
 #TODO: tutorial code sharing (first check Conda)

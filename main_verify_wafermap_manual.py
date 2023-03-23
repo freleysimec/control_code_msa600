@@ -1,6 +1,6 @@
 ## FRE LEYS OKT 2022 & FEB 2023
 import time
-import my_setup as mySetup
+from my_setup_class import MySetup
 import my_methods as myMethods
 import my_excel_handler as myExcelHandler
 import os
@@ -10,7 +10,7 @@ import utilities.my_computer_vision as myComputerVision
 
 projectLabel = "20230316_DEFN"
 projectFolder = r"D:\Fre\20230316_DEFN"
-mySetup.usedTools = ["PAV", "MSA_600"]
+usedTools = ["PAV", "MSA_600"]
 
 
 ### NO TOUCHY TOUCHY ###------------------------------------------------------------
@@ -31,6 +31,7 @@ def main():
         os.makedirs(imagesDirectory)
 
     ## INITIALISE THE SETUP
+    mySetup = MySetup(usedTools = usedTools)
     mySetup.initiate()
     mySetup.myPav.move_chuck_separation()
 

@@ -1,6 +1,6 @@
 ## FRE LEYS JAN 2023
 import time
-import my_setup as mySetup
+import my_setup_class as mySetup
 import my_excel_handler as myExcelHandler
 
 filename = "canopus"
